@@ -18,7 +18,7 @@ module Workbench::NavigationHelper
   end
 
   def slideout_github_integration
-    render(partial: '/shared/data/slideout/github')  if sessions_current_project && sessions_signed_in?
+    render(partial: '/shared/data/slideout/github')  if sessions_signed_in?
   end
 
   def quick_bar
