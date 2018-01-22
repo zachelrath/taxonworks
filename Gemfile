@@ -73,6 +73,9 @@ gem 'ref2bibtex', '~> 0.2.1'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.0'
 
+# GitHub integration
+gem "octokit", "~> 4.0"
+
 # UI/UX
 gem 'chartkick', '~> 2.2.4'
 gem 'groupdate', '~> 3.2'
