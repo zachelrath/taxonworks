@@ -10,7 +10,8 @@ RSpec.describe "GitHub issues", type: :feature do
       context 'when on the workbench', js: true do
 
         specify 'a GitHub issues slideout is accesible' do 
-          find('.slide-github-integration .slide-panel-circle-icon').hover.click
+          expect(page).to have_selector('.slide-github-integration .slide-panel-circle-icon')
+          page.execute_script('document.querySelector(".slide-github-integration .slide-panel-circle-icon").click()')
         end
       end
     end
