@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectingEventsHelper, :type => :helper do
+describe CollectingEventsHelper, type: :helper do
   context 'a collecting event needs some helpers' do
     let(:verbatim_label) { "USA: IL: Champaign Co.\nUrbana ii.2.14 YPT\nYoder" }
     let(:collecting_event) {FactoryBot.create(:valid_collecting_event, verbatim_label: verbatim_label ) }
@@ -15,7 +15,7 @@ describe CollectingEventsHelper, :type => :helper do
     end
 
     specify '#collecting_event_link' do
-      expect(helper.collecting_event_link(collecting_event)).to have_link("Urbana ii") # matches anywhere in link
+      expect(helper.collecting_event_link(collecting_event)).to have_link('Urbana ii') # matches anywhere in link
     end
 
     specify '#collecting_event_search_form' do

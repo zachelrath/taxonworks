@@ -14,7 +14,7 @@
 #
 #    bus valid_name OF aus
 #
-# Note that we can not say that all names that are subjects are valid, this is determined on a case by case basis. 
+# Note that we can not say that all names that are subjects are valid, this is determined on a case by case basis.
 #
 # TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use
 # a relationship you may be asserting a TaxonNameClassification also exists for the subject or object.
@@ -364,7 +364,7 @@ class TaxonNameRelationship < ApplicationRecord
             cached: t.get_full_name,
             cached_html: t.get_full_name_html
           )
-        elsif type_name =~/SourceClassifiedAs/ 
+        elsif type_name =~/SourceClassifiedAs/
           t = subject_taxon_name
           t.update_column(:cached_classified_as, t.get_cached_classified_as)
         elsif TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(type_name)
@@ -372,8 +372,8 @@ class TaxonNameRelationship < ApplicationRecord
           if type_name =~/Misspelling/
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
           end
-          t.update_columns(:cached => t.get_full_name,
-                           :cached_html => t.get_full_name_html)
+          t.update_columns(cached: t.get_full_name,
+                           cached_html: t.get_full_name_html)
           vn = t.get_valid_taxon_name
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
@@ -674,7 +674,7 @@ class TaxonNameRelationship < ApplicationRecord
       date1 = self.subject_taxon_name.nomenclature_date
       date2 = self.object_taxon_name.nomenclature_date
      if !!date1 and !!date2
-        invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & self.subject_taxon_name.taxon_name_classifications.collect{|c| c.type_class.to_s}
+       invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & self.subject_taxon_name.taxon_name_classifications.collect{|c| c.type_class.to_s}
         case self.type_class.nomenclatural_priority
           when :direct
             if date2 > date1 && invalid_statuses.empty?
@@ -792,8 +792,6 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   #endregion
-
-  private
 
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}

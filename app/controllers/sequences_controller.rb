@@ -90,7 +90,7 @@ class SequencesController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def batch_load
@@ -102,7 +102,7 @@ class SequencesController < ApplicationController
       digest_cookie(params[:files][0].tempfile, :batch_file_load_genbank_sequences_md5)
       render 'sequences/batch_file_load/genbank/preview'
     else
-      flash[:notice] = "No file(s) provided!"
+      flash[:notice] = 'No file(s) provided!'
       redirect_to action: :batch_load 
     end
   end
@@ -128,7 +128,7 @@ class SequencesController < ApplicationController
       digest_cookie(params[:file].tempfile, :Genbank_sequences_md5)
       render 'sequences/batch_load/genbank/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load 
     end
   end
@@ -154,7 +154,7 @@ class SequencesController < ApplicationController
       digest_cookie(params[:file].tempfile, :Primers_sequences_md5)
       render 'sequences/batch_load/primers/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load 
     end
   end
@@ -186,6 +186,6 @@ class SequencesController < ApplicationController
     end
 
     def batch_params
-      params.permit(:namespace, :file, :import_level, :files => []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+      params.permit(:namespace, :file, :import_level, files: []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
     end
 end

@@ -23,7 +23,7 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences/1
   # GET /georeferences/1.json
   def new
-   redirect_to new_georeferences_geo_locate_path
+    redirect_to new_georeferences_geo_locate_path
   end
 
   # GET /georeferences/1/edit
@@ -74,9 +74,9 @@ class GeoreferencesController < ApplicationController
               render "/georeferences/#{@georeference.method_name}/new"
             else
               if @georeference.collecting_event
-                 redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
+                redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
               else
-                 redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
+                redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
               end 
             end
           }
@@ -120,7 +120,7 @@ class GeoreferencesController < ApplicationController
 
   # GET /georeferences/download
   def download
-    send_data Georeference.generate_download(Georeference.where(project_id: sessions_current_project_id)), type: 'text', filename: "georeferences_#{DateTime.now.to_s}.csv"
+    send_data Georeference.generate_download(Georeference.where(project_id: sessions_current_project_id)), type: 'text', filename: "georeferences_#{DateTime.now}.csv"
   end
 
   private
@@ -145,7 +145,7 @@ class GeoreferencesController < ApplicationController
                                          :api_request,
                                          :is_undefined_z,
                                          :is_median_z,
-                                         :geographic_item_attributes => [:shape],
+                                         geographic_item_attributes: [:shape],
                                          origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
                                         ) 
   end

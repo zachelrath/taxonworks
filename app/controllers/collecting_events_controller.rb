@@ -64,7 +64,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def card
-   @target = params[:target] 
+    @target = params[:target]
   end
 
   def test
@@ -98,20 +98,20 @@ class CollectingEventsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
  # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
   # see rails-jquery-autocomplete
   def autocomplete_collecting_event_verbatim_locality
     term = params[:term]
-    values = CollectingEvent.where(project_id: sessions_current_project_id).where("verbatim_locality ILIKE ?", term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
-    render :json => values.map { |v| { :label => v.verbatim_locality, :value => v.verbatim_locality} }
+    values = CollectingEvent.where(project_id: sessions_current_project_id).where('verbatim_locality ILIKE ?', term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
+    render json: values.map { |v| { label: v.verbatim_locality, value: v.verbatim_locality} }
   end
 
   # GET /collecting_events/download
   def download
-    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: sessions_current_project_id)), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
+    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: sessions_current_project_id)), type: 'text', filename: "collecting_events_#{DateTime.now}.csv"
   end
 
    # GET collecting_events/batch_load
@@ -124,7 +124,7 @@ class CollectingEventsController < ApplicationController
       digest_cookie(params[:file].tempfile, :batch_collecting_events_md5)
       render 'collecting_events/batch_load/simple/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -144,14 +144,14 @@ class CollectingEventsController < ApplicationController
     render :batch_load
   end
 
-  def preview_castor_batch_load 
-    if params[:file] 
+  def preview_castor_batch_load
+    if params[:file]
       @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(batch_params)
       digest_cookie(params[:file].tempfile, :Castor_collecting_events_md5)
       render 'collecting_events/batch_load/castor/preview'
     else
-      flash[:notice] = "No file provided!"
-      redirect_to action: :batch_load 
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load
     end
   end
 
@@ -169,7 +169,7 @@ class CollectingEventsController < ApplicationController
     end
     render :batch_load
   end
-  
+
   private
 
   # Use callbacks to share common setup or constraints between actions.

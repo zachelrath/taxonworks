@@ -105,9 +105,15 @@
 # @!attribute verbatim_name
 #   @return [String]
 #   a representation of what the combination (fully spelled out) or protonym (monomial)
-#   *looked like* in its originating publication
+#   *looked like* in its originating publication.
 #   The sole purpose of this string is to represent visual differences from what is recorded in the
-#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed
+#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
+#   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
+#
+# TODO: @mjy etymology column in taxon_names is not covered here. Is tis correct below?
+# @!attribute etymology
+#   @return [String]
+#   the derivation and history of the name
 #
 # TODO: @mjy etymology column in taxon_names is not covered here. Is tis correct below?
 # @!attribute etymology
@@ -150,8 +156,8 @@ class TaxonName < ApplicationRecord
 
   NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze # Dash is allowed?
 
-  delegate :nomenclatural_code, to: :rank_class
-  delegate :rank_name, to: :rank_class
+  delegate :nomenclatural_code, to: :rank_class, allow_nil: true
+  delegate :rank_name, to: :rank_class, allow_nil: true
 
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
@@ -164,11 +170,11 @@ class TaxonName < ApplicationRecord
   # Deprecated
   # before_validation :set_type_if_empty
 
-  after_save :create_new_combination_if_absent 
+  after_save :create_new_combination_if_absent
 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
- 
+
   after_create :create_otu, if: :also_create_otu
 
   before_destroy :check_for_children, prepend: true
@@ -183,6 +189,8 @@ class TaxonName < ApplicationRecord
     :validate_one_root_per_project
 
   validates_presence_of :type, message: 'is not specified'
+
+  # TODO: move some of these down to Protonym when they don't apply to Combination
 
   # TODO: think of a different name, and test
   has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
@@ -319,6 +327,7 @@ class TaxonName < ApplicationRecord
   soft_validate(:sv_cached_names, set: :cached_names)
   soft_validate(:sv_not_synonym_of_self, set: :not_synonym_of_self)
   soft_validate(:sv_two_unresolved_alternative_synonyms, set: :two_unresolved_alternative_synonyms)
+  soft_validate(:sv_incomplete_combination, set: :incomplete_combination)
 
   # @return [Array]
   #   all TaxonNameRelationships where this taxon is an object or subject.
@@ -378,7 +387,7 @@ class TaxonName < ApplicationRecord
   # Important, string format priority is 1) as provided verbatim, 2) as generated from people, and 3) as taken from the source.
   def author_string
     return verbatim_author if !verbatim_author.nil?
-    return taxon_name_authors.pluck(:last_name).to_sentence if taxon_name_authors.any?
+    return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) ) if taxon_name_authors.any?
     return source.authority_name if !source.nil?
     nil
   end
@@ -399,11 +408,11 @@ class TaxonName < ApplicationRecord
     # family_before_1961 = taxon_name_relationships.with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
     if family_before_1961.nil?
       year = self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil
-      self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : year) : year
+      self.source ? (self.source.cached_nomenclature_date ? self.source.nomenclature_date : year) : year
     else
       obj  = family_before_1961.object_taxon_name
       year = obj.year_of_publication ? Time.utc(obj.year_of_publication, 12, 31) : nil
-      obj.source ? (self.source.cached_nomenclature_date ? obj.source.cached_nomenclature_date.to_time : year) : year
+      obj.source ? (self.source.cached_nomenclature_date ? obj.source.nomenclature_date : year) : year
     end
   end
 
@@ -679,25 +688,25 @@ class TaxonName < ApplicationRecord
   end
 
   # Debugging/optimizing caching
-  # attr_accessor :times_cached 
+  # attr_accessor :times_cached
   # after_save :reset_times_called
-  
+
   # def reset_times_called
   #   @times_cached = 0
   # end
-  
-  # def times_called 
+
+  # def times_called
   #   @times_cached ||= 0
   #   @times_cached += 1
   #   if @times_cached > 1
   #     print Rainbow(@times_cached).blue.bold
-  #   end 
+  #   end
   # end
 
   def set_cached
     update_column(:cached, get_full_name)
     set_cached_html
-    set_cached_author_year 
+    set_cached_author_year
     set_cached_classified_as
     set_cached_valid_taxon_name_id
   end
@@ -707,7 +716,7 @@ class TaxonName < ApplicationRecord
     update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
   end
 
-  # Only Protonym, but 
+  # Only Protonym, but
   # relationships fire it for Combinations
   def get_original_combination
     nil
@@ -723,7 +732,7 @@ class TaxonName < ApplicationRecord
   end
 
   def set_cached_classified_as
-   update_column(:cached_classified_as, get_cached_classified_as)
+    update_column(:cached_classified_as, get_cached_classified_as)
   end
 
   def get_cached_misspelling
@@ -736,7 +745,7 @@ class TaxonName < ApplicationRecord
   end
 
   def is_combination?
-    type == 'Combination' 
+    type == 'Combination'
   end
 
   # Returns an Array of ancestors
@@ -803,6 +812,18 @@ class TaxonName < ApplicationRecord
         data[rank] = i.name
       end
       # data[rank] = send(method, i, gender) if self.respond_to?(method)
+    end
+    if data['genus'].nil?
+      data['genus'] = [nil, "[GENUS NOT SPECIFIED]"]
+    end
+    if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
+      data['species'] = [nil, "[SPECIES NOT SPECIFIED]"]
+    end
+    if data['variety'].nil? && !data['subvariety'].nil?
+      data['variety'] = [nil, "[VARIETY NOT SPECIFIED]"]
+    end
+    if data['form'].nil? && !data['subform'].nil?
+      data['form'] = [nil, "[FORM NOT SPECIFIED]"]
     end
     data
   end
@@ -1066,7 +1087,7 @@ class TaxonName < ApplicationRecord
     if leaf?
       true
     else
-      errors.add(:base, "This taxon has children names attached, delete those first.")
+      errors.add(:base, 'This taxon has children names attached, delete those first.')
       # false
       throw :abort
     end
@@ -1122,7 +1143,7 @@ class TaxonName < ApplicationRecord
     if (rank_class != rank_class_was) && !rank_class_was.nil?
 
       if rank_class_was == 'NomenclaturalRank'
-        errors.add(:rank_class, "Root can not have a new rank")
+        errors.add(:rank_class, 'Root can not have a new rank')
         return
       end
 
@@ -1286,11 +1307,20 @@ class TaxonName < ApplicationRecord
 
   def sv_two_unresolved_alternative_synonyms
     r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
-    if r.to_a.count > 1
+    if r.to_a.size > 1
       if r.first.nomenclature_date.to_date == r.second.nomenclature_date.to_date
-        soft_validations.add(:base, "Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.")
+        soft_validations.add(:base, 'Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.')
       end
     end
+  end
+
+  def sv_incomplete_combination
+    soft_validations.add(:base, 'The genus in the combination is not specified') if !cached.nil? && cached.include?('GENUS NOT SPECIFIED')
+    soft_validations.add(:base, 'The species in the combination is not specified') if !cached.nil? && cached.include?('SPECIES NOT SPECIFIED')
+    soft_validations.add(:base, 'The variety in the combination is not specified') if !cached.nil? && cached.include?('VARIETY NOT SPECIFIED')
+    soft_validations.add(:base, 'The form in the combination is not specified') if !cached.nil? && cached.include?('FORM NOT SPECIFIED')
+    soft_validations.add(:base, 'The genus in the original combination is not specified') if !cached_original_combination.nil? && cached_original_combination.include?('GENUS NOT SPECIFIED')
+    soft_validations.add(:base, 'The species in the original combination is not specified') if !cached_original_combination.nil? && cached_original_combination.include?('SPECIES NOT SPECIFIED')
   end
 
   def sv_cached_names

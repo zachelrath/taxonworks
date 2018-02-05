@@ -62,7 +62,7 @@ class CollectionObjectsController < ApplicationController
 
     respond_to do |format|
       if @collection_object.save
-        format.html { redirect_to @collection_object.metamorphosize, notice: 'Collection object was successfully created.' }
+        format.html { redirect_to url_for(@collection_object.metamorphosize), notice: 'Collection object was successfully created.' }
         format.json { render action: 'show', status: :created, location: @collection_object.metamorphosize }
       else
         format.html { render action: 'new' }
@@ -77,7 +77,7 @@ class CollectionObjectsController < ApplicationController
     respond_to do |format|
       if @collection_object.update(collection_object_params)
         @collection_object = @collection_object.metamorphosize
-        format.html { redirect_to @collection_object, notice: 'Collection object was successfully updated.' }
+        format.html { redirect_to url_for(@collection_object), notice: 'Collection object was successfully updated.' }
         format.json { render :show, status: :ok, location: @collection_object }
       else
         format.html { render action: 'edit' }
@@ -129,12 +129,12 @@ class CollectionObjectsController < ApplicationController
        label_html: ApplicationController.helpers.collection_object_tag(t)
       }
     end
-    render :json => data
+    render json: data
   end
 
   # GET /collection_objects/download
   def download
-    send_data Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
   end
 
   # GET collection_objects/batch_load
@@ -178,7 +178,7 @@ class CollectionObjectsController < ApplicationController
       digest_cookie(params[:file].tempfile, :Castor_collection_objects_md5)
       render 'collection_objects/batch_load/castor/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end

@@ -97,7 +97,7 @@ class DocumentationController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   private
@@ -107,7 +107,7 @@ class DocumentationController < ApplicationController
 
   def documentation_params
     params.require(:documentation).permit(
-      :documentation_object_id, :documentation_object_type, :document_id, :annotated_global_entity,
+      :documentation_object_id, :documentation_object_type, :document_id, :annotated_global_entity, :position,
       document_attributes: [:document_file] 
     )
   end

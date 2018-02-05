@@ -43,7 +43,7 @@ class Person < ApplicationRecord
   include Shared::IsData
 
   # Class constants
-  ALTERNATE_VALUES_FOR = [:last_name, :first_name]
+  ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
 
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank
@@ -52,7 +52,7 @@ class Person < ApplicationRecord
   after_save :set_cached
 
   validates :type, inclusion: {in:      ['Person::Vetted', 'Person::Unvetted'],
-                               message: "%{value} is not a validly_published type"}
+                               message: '%{value} is not a validly_published type'}
 
   has_many :roles, dependent: :destroy, inverse_of: :person
   has_many :author_roles, class_name: 'SourceAuthor'

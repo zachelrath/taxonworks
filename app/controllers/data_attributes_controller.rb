@@ -35,7 +35,7 @@ class DataAttributesController < ApplicationController
     @data_attribute = DataAttribute.new(data_attribute_params)
     respond_to do |format|
       if @data_attribute.save
-        format.html { redirect_to @data_attribute.attribute_subject.metamorphosize, notice: 'Data attribute was successfully created.' }
+        format.html { redirect_to url_for(@data_attribute.attribute_subject.metamorphosize), notice: 'Data attribute was successfully created.' }
         format.json { render action: 'show', status: :created, location: @data_attribute.metamorphosize }
       else
 
@@ -50,7 +50,7 @@ class DataAttributesController < ApplicationController
   def update
     respond_to do |format|
       if @data_attribute.update(data_attribute_params)
-        format.html { redirect_to @data_attribute.attribute_subject.metamorphosize, notice: 'Data attribute was successfully updated.' }
+        format.html { redirect_to url_for(@data_attribute.attribute_subject.metamorphosize), notice: 'Data attribute was successfully updated.' }
         format.json { render :show, status: :ok, location: @data_attribute.metamorphosize }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully updated.')}
@@ -95,12 +95,12 @@ class DataAttributesController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /data_attributes/download
   def download
-    send_data Download.generate_csv(DataAttribute.where(project_id: sessions_current_project_id)), type: 'text', filename: "data_attributes_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(DataAttribute.where(project_id: sessions_current_project_id)), type: 'text', filename: "data_attributes_#{DateTime.now}.csv"
   end
 
   private

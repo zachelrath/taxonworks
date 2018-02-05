@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe NamespacesHelper, :type => :helper do
+describe NamespacesHelper, type: :helper do
   context 'a namespace needs some helpers' do
     let(:name) {'dangerzone'}
     let(:namespace) {FactoryBot.create(:valid_namespace, name:name)}
@@ -17,7 +17,7 @@ describe NamespacesHelper, :type => :helper do
       expect(helper.namespace_link(namespace)).to have_link(name)
     end
 
-    specify "#namespace_search_form" do
+    specify '#namespace_search_form' do
       expect(helper.namespaces_search_form).to have_field('namespace_id_for_quick_search_form')
     end
 

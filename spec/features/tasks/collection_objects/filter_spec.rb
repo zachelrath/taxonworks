@@ -1,5 +1,5 @@
 require 'rails_helper'
-require 'make_simple_world'
+require_relative '../../../support/shared_contexts/make_simple_world'
 
 describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
 
@@ -36,7 +36,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
       let(:area_a) { GeographicArea.where(name: 'A').first }
       let(:area_b) { GeographicArea.where(name: 'B').first }
       let(:area_e) { GeographicArea.where(name: 'E').first }
-      let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", "coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
+      let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", ' \
+                              '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
 
       # need some collection objects
       let(:co_a) {
@@ -58,7 +59,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
           before do
             # can't use `a = specimen.otus << otu_test` because $user_id and $project_id don't exist.
-            TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
+            TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen,
+                                       by: @user, project: @project)
             visit(collection_objects_filter_task_path)
           end
 
@@ -87,7 +89,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
                                       project:           @project,
                                       creator:           @user,
                                       identifier_object: sp,
-                                      namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                      namespace:         (identifier.even? ? ns1 : ns2),
                                       identifier:        identifier)
             }
             visit(collection_objects_filter_task_path)
@@ -194,7 +196,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
               sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryBot.create(:identifier_local_catalog_number,
                                       identifier_object: sp,
-                                      namespace:         ((identifier % 2) == 0 ? @ns1 : @ns2),
+                                      namespace:         (identifier.even? ? @ns1 : @ns2),
                                       identifier:        identifier, creator: @user, updater: @user, project: @project)
             }
 
@@ -247,7 +249,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         let(:pat_admin) { User.where(name: 'Pat Project Administrator').first }
         let!(:joe) {
           peep = FactoryBot.create(:valid_user, by: pat_admin)
-          ProjectMember.create(project_id: @project.id, user_id: peep.id, by: pat_admin)
+          ProjectMember.create!(project_id: @project.id, user_id: peep.id, by: pat_admin)
           peep
         }
 
@@ -276,10 +278,10 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
             (1..10).each { |specimen|
               sp = FactoryBot.create(:valid_specimen,
-                                      creator:    ((specimen % 2) == 0 ? joe : pat),
+                                      creator:    (specimen.even? ? joe : pat),
                                       created_at: "200#{specimen - 1}/01/#{specimen}",
                                       updated_at: "200#{specimen - 1}/07/#{specimen}",
-                                      updater:    ((specimen % 2) == 0 ? pat : joe),
+                                      updater:    (specimen.even? ? pat : joe),
                                       project:    @project)
             }
 
@@ -309,8 +311,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             expect(find('#user_date_range_count')).to have_content('5')
 
             select('Pat Pro', from: 'user')
-            fill_in('user_date_range_start', with: Date.today)
-            fill_in('user_date_range_end', with: Date.today)
+            fill_in('user_date_range_start', with: Time.zone.today)
+            fill_in('user_date_range_end', with: Time.zone.today)
 
             click_button('Set User/Date Range', {id: 'set_user_date_range'})
             wait_for_ajax

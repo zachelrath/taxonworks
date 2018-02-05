@@ -97,7 +97,7 @@ class OtusController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def batch_load
@@ -180,7 +180,7 @@ class OtusController < ApplicationController
 
   # GET /otus/download
   def download
-    send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)), type: 'text', filename: "otus_#{DateTime.now}.csv"
   end
 
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
@@ -201,7 +201,7 @@ class OtusController < ApplicationController
   end
 
   def batch_params
-    params.permit(:name, :file, :import_level, :files => []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+    params.permit(:name, :file, :import_level, files: []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def user_map

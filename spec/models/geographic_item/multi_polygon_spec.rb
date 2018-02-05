@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe GeographicItem::MultiPolygon, type: :model, group: :geo do
   context 'that this item' do
-    let(:g) { FactoryBot.build(:geographic_item_multi_polygon, :multi_polygon => SHAPE_G.as_binary) }
+    let(:g) { FactoryBot.build(:geographic_item_multi_polygon, multi_polygon: SHAPE_G.as_binary) }
     specify 'represents a multi_polygon' do
       expect(g.type).to eq('GeographicItem::MultiPolygon')
       expect(g.valid?).to be_truthy
@@ -20,7 +20,7 @@ describe GeographicItem::MultiPolygon, type: :model, group: :geo do
     end
 
     specify '#st_start_point returns the first POINT of the GeoObject' do
-      expect(g.st_start_point.to_s).to eq("POINT (28.0 2.3 0.0)")
+      expect(g.st_start_point.to_s).to eq('POINT (28.0 2.3 0.0)')
     end
 
   end

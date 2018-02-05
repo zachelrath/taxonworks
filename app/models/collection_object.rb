@@ -170,7 +170,7 @@ class CollectionObject < ApplicationRecord
 
   # TODO: move to a helper
   def self.breakdown_status(collection_objects)
-    collection_objects = [collection_objects] if !(collection_objects.class == Array)
+    collection_objects = [collection_objects] if collection_objects.class != Array
 
     breakdown = {
       total_objects:     collection_objects.length,
@@ -193,7 +193,7 @@ class CollectionObject < ApplicationRecord
   # @return [Hash]
   #   a unque list of buffered_ values observed in the collection objects passed
   def self.breakdown_buffered(collection_objects)
-    collection_objects = [collection_objects] if !(collection_objects.class == Array)
+    collection_objects = [collection_objects] if collection_objects.class != Array
     breakdown          = {}
     categories         = BUFFERED_ATTRIBUTES
 
@@ -288,7 +288,7 @@ class CollectionObject < ApplicationRecord
 
         end
       else
-        table_data.each { |_key, value|
+        table_data.each_value { |value|
           csv << value.collect { |item|
             item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
           }
@@ -324,7 +324,7 @@ class CollectionObject < ApplicationRecord
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
 
-    c = Time.now.strftime("%Y/%m/%d")
+    c = Time.now.strftime('%Y/%m/%d')
 
     return c if a.nil? && b.nil?
 
@@ -406,8 +406,8 @@ class CollectionObject < ApplicationRecord
       all_import_das   = collection_object.collecting_event.import_attributes
       group            = collection[:ce]
       unless group.nil?
-        group.keys.each { |type_key|
-          group[type_key.to_sym].keys.each { |header|
+        group.each_key { |type_key|
+          group[type_key.to_sym].each_key { |header|
             this_val = nil
             case type_key.to_sym
               when :in
@@ -468,7 +468,7 @@ class CollectionObject < ApplicationRecord
       unless group.nil?
         unless group.empty?
           unless group[:in].empty?
-            group[:in].keys.each { |header|
+            group[:in].each_key { |header|
               this_val = nil
               all_internal_das.each { |da|
                 if da.predicate.name == header
@@ -481,7 +481,7 @@ class CollectionObject < ApplicationRecord
         end
         unless group.empty?
           unless group[:im].empty?
-            group[:im].keys.each { |header|
+            group[:im].each_key { |header|
               this_val = nil
               all_import_das.each { |da|
                 if da.import_predicate == header
@@ -520,7 +520,7 @@ class CollectionObject < ApplicationRecord
       unless group.nil?
         unless group.empty?
           unless group[:in].empty?
-            group[:in].keys.each { |header|
+            group[:in].each_key { |header|
               this_val = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
               retval.push(this_val) # push one value (nil or not) for each selected header
             }

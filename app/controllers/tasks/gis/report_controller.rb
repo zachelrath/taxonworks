@@ -48,7 +48,7 @@ class Tasks::Gis::ReportController < ApplicationController
                                                                        shape_in,
                                                                        finding)
         report_file              = CollectionObject.generate_report_download(@list_collection_objects, current_headers, table_data)
-        send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
+        send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now}.csv")
       else
         # what else is there to do?
     end
@@ -107,7 +107,7 @@ class Tasks::Gis::ReportController < ApplicationController
       #     else
       #   end
     else
-      feature = RGeo::GeoJSON.decode(shape_in, :json_parser => :json)
+      feature = RGeo::GeoJSON.decode(shape_in, json_parser: :json)
       # isolate the WKT
       geometry  = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase
@@ -153,11 +153,11 @@ class Tasks::Gis::ReportController < ApplicationController
     # remove all the headers which are NOT checked
     %w(ce co bc).each { |column|
       group = current_headers[column.to_sym]
-      group.keys.each { |type|
+      group.each_key { |type|
         headers = group[type.to_sym]
         entry   = current_headers[column.to_sym][type.to_sym]
         unless headers.empty?
-          headers.keys.each { |header|
+          headers.each_key { |header|
             if headers[header].empty?
               # we must be in 'get' processing
             else

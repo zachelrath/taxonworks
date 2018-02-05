@@ -88,12 +88,12 @@ class ImagesController < ApplicationController
        label_html:      ImagesHelper.image_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
-    render :json => data
+    render json: data
   end
 
   # GET /images/download
   def download
-    send_data Image.generate_download( Image.where(project_id: sessions_current_project_id) ), type: 'text', filename: "images_#{DateTime.now.to_s}.csv"
+    send_data Image.generate_download( Image.where(project_id: sessions_current_project_id) ), type: 'text', filename: "images_#{DateTime.now}.csv"
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width
@@ -113,7 +113,7 @@ class ImagesController < ApplicationController
 
   # GET /images/:id/ocr/:x/:y/:height/:width
   def ocr 
-    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' ) 
+    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root}/public/images/tmp", encoding: 'ASCII-8BIT' ) 
     tempfile.write( Image.cropped_blob(params) )
     tempfile.rewind
 

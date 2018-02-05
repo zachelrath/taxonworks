@@ -82,7 +82,7 @@ namespace :tw do
         end
       end
 
-      task :import_all => [:data_directory, :environment] do |t|
+      task import_all: [:data_directory, :environment] do |t|
 
         @ranks = {
             0 => '',
@@ -342,20 +342,20 @@ namespace :tw do
         @data.keywords.merge!(
             #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
             '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
-            'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'Introduced species.', project_id: $project_id),
+            'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'Introduced species.........', project_id: $project_id),
             'ZeroTotal' => Keyword.find_or_create_by(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in INHS FileMaker database.', project_id: $project_id),
-            'Allotype' => Keyword.find_or_create_by(name: 'Allotype', definition: 'Allotype.', project_id: $project_id),
+            'Allotype' => Keyword.find_or_create_by(name: 'Allotype', definition: 'Allotype.......................', project_id: $project_id),
             'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
             #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
-            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository.', project_id: $project_id),
-            'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant.', project_id: $project_id),
-            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks.', project_id: $project_id),
-            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by', project_id: $project_id),
-            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action', project_id: $project_id),
-            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author.', project_id: $project_id),
-            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species.', project_id: $project_id),
+            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository...............', project_id: $project_id),
+            'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant...................', project_id: $project_id),
+            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks............', project_id: $project_id),
+            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by............', project_id: $project_id),
+            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action................', project_id: $project_id),
+            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author..............', project_id: $project_id),
+            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species................', project_id: $project_id),
             'IDDrMetcalf' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
             'KeyN' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_KeyN_ID', short_name: '3i_KeyN_ID'),
             'Key3' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Source_ID', short_name: '3i_Source_ID'),
@@ -374,7 +374,7 @@ namespace :tw do
             'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
             'Attendant' => BiologicalProperty.find_or_create_by(name: 'Attendant', definition: 'An insect attending another insect.', project_id: $project_id),
             'Symbiont' => BiologicalProperty.find_or_create_by(name: 'Symbiont', definition: 'An insect leaving togeather with another insect.', project_id: $project_id),
-            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin')
+            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin.........')
         )
 
         @data.namespaces.merge!(
@@ -394,11 +394,11 @@ namespace :tw do
         )
 
         @data.biocuration_classes.merge!(
-            "Specimens" => BiocurationClass.find_or_create_by(name: "Adult", definition: 'Adult specimen', project_id: $project_id),
-            "Males" => BiocurationClass.find_or_create_by(name: "Male", definition: 'Male specimen', project_id: $project_id),
-            "Females" => BiocurationClass.find_or_create_by(name: "Female", definition: 'Female specimen', project_id: $project_id),
-            "Nymphs" => BiocurationClass.find_or_create_by(name: "Immature", definition: 'Immature specimen', project_id: $project_id),
-            "Exuvia" => BiocurationClass.find_or_create_by(name: "Exuvia", definition: 'Exuvia specimen', project_id: $project_id)
+            'Specimens' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Adult specimen..........', project_id: $project_id),
+            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Male specimen..............', project_id: $project_id),
+            'Females' => BiocurationClass.find_or_create_by(name: 'Female', definition: 'Female specimen............', project_id: $project_id),
+            'Nymphs' => BiocurationClass.find_or_create_by(name: 'Immature', definition: 'Immature specimen...........', project_id: $project_id),
+            'Exuvia' => BiocurationClass.find_or_create_by(name: 'Exuvia', definition: 'Exuvia specimen..............', project_id: $project_id)
         )
 
         @data.topics.merge!(
@@ -1077,7 +1077,7 @@ namespace :tw do
         path = @args[:data_directory] + 'accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
-        ac = CSV.open(path, col_sep: "\t", :headers => true)
+        ac = CSV.open(path, col_sep: "\t", headers: true)
 
         fields = %w{LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn}
 
@@ -1114,7 +1114,7 @@ namespace :tw do
           fields.each do |c|
             tmp_ce[c] = row[c] unless row[c].blank?
           end
-          field_translate.keys.each do |c|
+          field_translate.each_key do |c|
             tmp_ce[field_translate[c]] = tmp_ce[c]
           end
           tmp_ce['County'] = geo_translate_3i(tmp_ce['County']) unless tmp_ce['County'].blank?
@@ -1666,7 +1666,7 @@ namespace :tw do
         return nil if row['ID'].blank?
         ns = 'INHS'
         i = row['ID']
-        @data.namespaces.keys.each do |p|
+        @data.namespaces.each_key do |p|
           if i.include?(p)
             ns = p
             i = i.gsub(p, '')
@@ -1703,7 +1703,7 @@ namespace :tw do
             if !row['Type'].blank?
               type = @type_type_3i[row['Type'].downcase]
               unless type.nil?
-                type = type + 's' if o.type == "Lot"
+                type = type + 's' if o.type == 'Lot'
                 tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
                 o.tags.find_or_create_by!(keyword: @data.keywords['Allotype']) if row['Type'] == 'Allotype'
                 if tm.id.nil?
@@ -1720,14 +1720,14 @@ namespace :tw do
         nlt = ce['LatNS'].blank? ? nil : ce['LatNS'].capitalize
         ltd = ce['LatDeg'].blank? ? nil : "#{ce['LatDeg']}º".gsub('.00º', 'º')
         ltm = ce['LatMin'].blank? ? nil : "#{ce['LatMin']}'".gsub(".00'", "'")
-        lts = ce['LatSec'].blank? ? nil : "#{ce['LatSec']}\"".gsub(".00\"", "\"")
+        lts = ce['LatSec'].blank? ? nil : "#{ce['LatSec']}\"".gsub('.00"', '"')
         latitude = [nlt,ltd,ltm,lts].compact.join
         latitude = nil if latitude == '-'
 
         nll = ce['LongEW'].blank? ? nil : ce['LongEW'].capitalize
         lld = ce['LongDeg'].blank? ? nil : "#{ce['LongDeg']}º".gsub('.00º', 'º')
         llm = ce['LongMin'].blank? ? nil : "#{ce['LongMin']}'".gsub(".00'", "'")
-        lls = ce['LongSec'].blank? ? nil : "#{ce['LongSec']}\"".gsub(".00\"", "\"")
+        lls = ce['LongSec'].blank? ? nil : "#{ce['LongSec']}\"".gsub('.00"', '"')
 
         longitude = [nll,lld,llm,lls].compact.join
         longitude = nil if longitude == '-'
@@ -1740,8 +1740,8 @@ namespace :tw do
         # DateTo
 
         sdm, sdd, sdy, edm, edd, edy = nil, nil, nil, nil, nil, nil
-        ( sdm, sdd, sdy = ce['Date'].split("/") ) if !ce['Date'].blank?
-        ( edm, edd, edy = ce['DateTo'].split("/") ) if !ce['DateTo'].blank?
+        ( sdm, sdd, sdy = ce['Date'].split('/') ) if !ce['Date'].blank?
+        ( edm, edd, edy = ce['DateTo'].split('/') ) if !ce['DateTo'].blank?
         sdy = sdy.to_i unless sdy.blank?
         edy = edy.to_i unless edy.blank?
         sdd = sdd.to_i unless sdd.blank?

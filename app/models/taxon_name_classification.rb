@@ -59,8 +59,8 @@ class TaxonNameClassification < ApplicationRecord
   # @return [String]
   #   the class name, "validated" against the known list of names
   def type_name
-   r = self.type.to_s
-   TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
+    r = self.type.to_s
+    TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -161,7 +161,7 @@ class TaxonNameClassification < ApplicationRecord
     begin
       TaxonName.transaction do
         t = taxon_name
-        
+
         if type_name =~ /Fossil|Hybrid/
           t.update_columns(
             cached: t.get_full_name,
@@ -211,7 +211,7 @@ class TaxonNameClassification < ApplicationRecord
     y = self.taxon_name.year_of_publication
     if not y.nil?
       if y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year
-        soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y.to_s}")
+        soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
       end
     end
   end
@@ -262,12 +262,20 @@ class TaxonNameClassification < ApplicationRecord
         soft_validations.add(:type, 'Please specify if the name is Legitimate or Illegitimate')
       when 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate'
         soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
-      when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' || 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
+      # when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
+      #   soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
+      when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' ||
+           'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
         t = taxon_name.name
-        if !t.end_with?('us') && !t.end_with?('a') && !t.end_with?('um') && !t.end_with?('is') && !t.end_with?('e') && !t.end_with?('or') && !t.end_with?('er')
-            soft_validations.add(:type, 'Adjective or participle name should end with one of the following endings: -us, -a, -um, -is, -e, -er, -or')
+        if !t.end_with?('us') &&
+          !t.end_with?('a') &&
+          !t.end_with?('um') &&
+          !t.end_with?('is') &&
+          !t.end_with?('e') &&
+          !t.end_with?('or') &&
+          !t.end_with?('er')
+          soft_validations.add(:type, 'Adjective or participle name should end with one of the ' \
+                                              'following endings: -us, -a, -um, -is, -e, -er, -or')
         end
     end
   end
@@ -291,7 +299,7 @@ class TaxonNameClassification < ApplicationRecord
   end
 
   def validate_taxon_name_classification
-    errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
+    errors.add(:type, 'Status not found') if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end
 
 

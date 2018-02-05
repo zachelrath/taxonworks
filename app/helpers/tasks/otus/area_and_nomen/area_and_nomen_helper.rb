@@ -5,13 +5,13 @@ module Tasks::Otus::AreaAndNomen::AreaAndNomenHelper
     if @otus.any?
       page_entries_info(@otus)
     else
-      "Displaying no otus"
+      'Displaying no otus'
     end
   end
 
   def otu_paging
     if @otus.any?
-      paginate(@otus, :remote => true)
+      paginate(@otus, remote: true)
     end
   end
 

@@ -48,7 +48,7 @@ class Image < ApplicationRecord
   include SoftValidation
 
   #constants
-  MISSING_IMAGE_PATH = '/public/images/missing.jpg'
+  MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
@@ -56,23 +56,23 @@ class Image < ApplicationRecord
 
   # also using https://github.com/teeparham/paperclip-meta
   has_attached_file :image_file,
-                    styles:           {:medium => '300x300>', :thumb => '100x100>'},
+                    styles:           {medium: '300x300>', thumb: '100x100>'},
                     default_url:      MISSING_IMAGE_PATH,
                     filename_cleaner:  Utilities::CleanseFilename
 
   #:restricted_characters => /[^A-Za-z0-9\.]/,
-  validates_attachment_content_type :image_file, :content_type => /\Aimage\/.*\Z/
+  validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/
   validates_attachment_presence :image_file
   validates_attachment_size :image_file, greater_than: 1.kilobytes
 
   soft_validate(:sv_duplicate_image?)
 
   def has_duplicate?
-    Image.where(:image_file_fingerprint => self.image_file_fingerprint).count > 1
+    Image.where(image_file_fingerprint: self.image_file_fingerprint).count > 1
   end
 
   def duplicate_images
-   Image.where(:image_file_fingerprint => self.image_file_fingerprint).not_self(self).to_a
+    Image.where(image_file_fingerprint: self.image_file_fingerprint).not_self(self).to_a
   end
 
   def exif
@@ -84,11 +84,8 @@ class Image < ApplicationRecord
     unless self.new_record? # only process if record exists
       tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
       # following removes the exif, spits and recombines string as a hash
-      ret_val = tmp.split("\n").collect { |b|
-                                          b.gsub("exif:", "").split("=")
-                                        }.inject({}) { |hsh, c|
-                                                        hsh.merge(c[0] => c[1])
-                                                    }
+      ret_val = tmp.split("\n").collect { |b| b.gsub('exif:', '').split('=') }
+                  .inject({}) { |hsh, c| hsh.merge(c[0] => c[1]) }
       # might be able to tmp.split("\n").collect { |b|
       # b.gsub("exif:", "").split("=")
       # }.inject(ret_val) { |hsh, c|

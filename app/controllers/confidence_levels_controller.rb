@@ -20,7 +20,7 @@ class ConfidenceLevelsController < ApplicationController
     confidence_levels = ConfidenceLevel.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).distinct
 
     data = confidence_levels.collect do |t|
-      str = t.name + ": " + t.definition
+      str = t.name + ': ' + t.definition
       {id: t.id,
        label: str,
        response_values: {
@@ -29,12 +29,12 @@ class ConfidenceLevelsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def lookup
     @confidence_levels = Queries::ControlledVocabularyTermAutocompleteQuery.new(term_param, project_id: sessions_current_project_id, object_type: ['ConfidenceLevel']).all
-    render(:json => @confidence_levels.collect { |t|
+    render(json: @confidence_levels.collect { |t|
       {
         label: t.name,
         object_id: t.id,

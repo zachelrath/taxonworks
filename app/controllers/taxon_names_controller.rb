@@ -31,11 +31,11 @@ class TaxonNamesController < ApplicationController
     @taxon_name = TaxonName.new(taxon_name_params)
     respond_to do |format|
       if @taxon_name.save
-        format.html { redirect_to @taxon_name.metamorphosize,
+        format.html { redirect_to url_for(@taxon_name.metamorphosize),
                       notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
-        format.html { render action: 'new' }
+        format.html { render action: :new }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end
@@ -47,10 +47,10 @@ class TaxonNamesController < ApplicationController
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
         @taxon_name.reload
-        format.html { redirect_to @taxon_name.metamorphosize, notice: 'Taxon name was successfully updated.' }
+        format.html { redirect_to url_for(@taxon_name.metamorphosize), notice: 'Taxon name was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
-        format.html { render action: 'edit' }
+        format.html { render action: :edit }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end
@@ -92,7 +92,7 @@ class TaxonNamesController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def autocomplete_params
@@ -107,7 +107,7 @@ class TaxonNamesController < ApplicationController
   def download
     send_data Download.generate_csv(
       TaxonName.where(project_id: sessions_current_project_id)
-    ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
+    ), type: 'text', filename: "taxon_names_#{DateTime.now}.csv"
   end
 
   def batch_load
@@ -123,7 +123,7 @@ class TaxonNamesController < ApplicationController
       digest_cookie(params[:file].tempfile, :simple_taxon_names_md5)
       render 'taxon_names/batch_load/simple/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -149,7 +149,7 @@ class TaxonNamesController < ApplicationController
       digest_cookie(params[:file].tempfile, :Castor_taxon_names_md5)
       render 'taxon_names/batch_load/castor/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -171,6 +171,13 @@ class TaxonNamesController < ApplicationController
 
   def browse
     @data = NomenclatureCatalog.data_for(@taxon_name)
+  end
+
+  def parse
+    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+      query_string: params.require(:query_string),
+      project_id: sessions_current_project_id
+    ).result
   end
 
   private
@@ -205,7 +212,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :also_create_otu,
       :import_level).merge(
-      user_id:    sessions_current_user_id,
+      user_id: sessions_current_user_id,
       project_id: sessions_current_project_id
       ).to_h.symbolize_keys
   end

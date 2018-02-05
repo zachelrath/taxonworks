@@ -172,6 +172,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get :card
     end
+
     # collection do
       #   post :preview_simple_batch_load # should be get
       #   post :create_simple_batch_load
@@ -185,6 +186,12 @@ TaxonWorks::Application.routes.draw do
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
+    collection do
+      get :index, defaults: {format: :json}
+    end
+    member do
+      get :show, defaults: {format: :json}
+    end
   end
 
   resources :common_names do
@@ -256,7 +263,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       post 'display_coordinates'
-      get 'display_coordinates', as: "getdisplaycoordinates"
+      get 'display_coordinates', as: 'getdisplaycoordinates'
     end
   end
 
@@ -284,7 +291,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :identifier_types, {format: :json}
-  end
+    end
   end
 
   resources :images do
@@ -523,6 +530,8 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_castor_batch_load
       post :create_castor_batch_load
+
+      get :parse, defaults: {format: :json}
     end
 
     member do
@@ -552,9 +561,10 @@ TaxonWorks::Application.routes.draw do
   resources :topics, only: [:create] do
     collection do
       get :index, defaults: { format: :json }
-      get :lookup_topic
+      get :select_options, defaults: {format: :json}
       get 'get_definition/:id', action: 'get_definition'
       get :autocomplete
+      get :lookup_topic
       get :list
     end
   end
@@ -564,7 +574,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :type_types, {format: :json}
     end
-    
+
   end
 
 
@@ -572,7 +582,7 @@ TaxonWorks::Application.routes.draw do
   # otu_citations GET    /otus/:otu_id/citations(.:format)    citations#index
   ApplicationEnumeration.data_models.each do |m|
     Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
-      if m.send("has_#{t.to_s}?")
+      if m.send("has_#{t}?")
         n = m.model_name
         match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index", as: "#{n.singular}_#{t}", via: :get, constraints: {format: :json}, defaults: {format: :json}
       end
@@ -828,6 +838,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :nomenclature do
+      scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
+        get 'index', as: 'new_combination_task'
+      end
+
       scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
         get '(:id)', action: :index, as: 'new_taxon_name_task'
       end
@@ -845,7 +859,6 @@ TaxonWorks::Application.routes.draw do
       scope :by_source, controller: 'tasks/nomenclature/by_source' do
         get '(:id)', action: :index, as: 'nomenclature_by_source_task'
       end
-
     end
 
     scope :people, controller: 'tasks/people/author' do
@@ -892,7 +905,7 @@ TaxonWorks::Application.routes.draw do
 
   # Future consideration - move this to an engine, or include multiple draw files and include (you apparenlty
   # lose the autoloading update from the include in this case however)
-  scope :api, :defaults => { :format => :json }, :constraints => { id: /\d+/ } do
+  scope :api, defaults: { format: :json }, constraints: { id: /\d+/ } do
     scope  '/v1' do
 
       get '/observation_matrices/:id/row',
@@ -945,7 +958,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  scope :api, :defaults => { :format => :html } do
+  scope :api, defaults: { format: :html } do
     scope  '/v1' do
       get '/taxon_names/autocomplete',
         to: 'taxon_names#autocomplete'

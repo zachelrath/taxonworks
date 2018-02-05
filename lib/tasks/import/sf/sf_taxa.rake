@@ -12,7 +12,7 @@ namespace :tw do
         # user	57m35.616s
         # sys	2m26.810s
 
-        LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_status_flag_relationships: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating relationships from StatusFlags...'
 
@@ -326,7 +326,7 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_some_related_taxa => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_some_related_taxa: [:data_directory, :environment, :user_id] do |logger|
           # 45 errors, 2.5 minutes
 
           logger.info 'Creating some related taxa (from tblRelatedTaxa)...'
@@ -440,7 +440,7 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_type_genera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_type_genera => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_type_genera: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating type genera...'
 
@@ -501,7 +501,7 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_type_species user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_type_species => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_type_species: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating type species...'
 
@@ -694,7 +694,7 @@ namespace :tw do
         ############ check if taxon description requires a source where ContainingRefID > 0
 
         desc 'time rake tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_all_sf_taxa_pass1: [:data_directory, :environment, :user_id] do |logger|
 
           # real	310m28.726s
           # user	207m23.957s
@@ -703,9 +703,8 @@ namespace :tw do
           # [INFO]2017-03-15 15:43:39.366: Logged task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 completed!
           # [INFO]2017-03-15 15:43:39.367: All tasks completed. Dumping summary for each task...
           # === Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 ===
-          #     [ERROR]2017-03-15 13:11:40.264: TaxonName ERROR (1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 68332): Parent The parent rank (subspecies) is not higher than subspecies
+          # [ERROR]2017-03-15 13:11:40.264: TaxonName ERROR (1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 68332): Parent The parent rank (subspecies) is not higher than subspecies
           # [ERROR]2017-03-15 13:20:22.621: TaxonName ERROR (2) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 71920): Parent The parent rank (subspecies) is not higher than subspecies
-
 
           logger.info 'Creating all SF taxa (pass 1)...'
 
@@ -734,7 +733,7 @@ namespace :tw do
           no_parent_counter = 0
 
           invalid_name_keywords = {}
-          get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.each_value do |project_id|
             k = Keyword.find_or_create_by(
                 name: 'Taxon name validation failed',
                 definition: 'Taxon name validation failed',
@@ -766,7 +765,7 @@ namespace :tw do
               else
                 parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
               end
-            elsif get_otu_sf_above_id.has_key?(taxon_name_id) # ill-formed sf taxon name, will make OTU
+            elsif get_otu_sf_above_id[taxon_name_id] # ill-formed sf taxon name, will make OTU
               parent_id = get_tw_taxon_name_id[get_otu_sf_above_id[taxon_name_id]]
               # problem with two instances of parent not properly selected when nominotypical species, seems to default to nominotypical subspecies:
               # TaxonNameID 1225991 (Plec, tadzhikistanicum, nomen dubium, parent should be 1166943)
@@ -787,8 +786,7 @@ namespace :tw do
             name_status = row['NameStatus']
             status_flags = row['StatusFlags']
 
-            # if name_status == '2' or get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
-            if get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
+            if get_otu_sf_above_id[taxon_name_id] # temporary, create OTU, not TaxonName
               otu = Otu.new(
                   name: row['Name'],
                   taxon_name_id: parent_id,
@@ -820,15 +818,12 @@ namespace :tw do
                   parent_id: parent_id,
                   rank_class: get_tw_rank_string[row['RankID']],
 
-
-
-                  # ADD TaxonNameID as a identifier local import, create a namespace for each project, see GitHub https://github.com/SpeciesFileGroup/taxonworks/issues/166
-                  #  or add as separate rake task
-
-
-
-
-
+                  data_attributes_attributes: [
+                      {type: 'ImportAttribute',
+                       import_predicate: 'SF.TaxonNameID',
+                       value: taxon_name_id,
+                       project_id: project_id
+                      }],
 
                   # housekeeping attributed to SF last_editor, etc.
                   origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],
@@ -880,13 +875,8 @@ namespace :tw do
 
               begin
                 taxon_name.save!
-                  # logger.info "taxon_name.id = #{taxon_name.id}"
-                  #  get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
-                  #  get_sf_name_status[row['TaxonNameID']] = name_status
-                  #  get_sf_status_flags[row['TaxonNameID']] = status_flags
-                  #  get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
-                  # if one of anticipated import errors, add classification, then try to save again...
+              # if one of anticipated import errors, add classification, then try to save again...
               rescue ActiveRecord::RecordInvalid
                 taxon_name.taxon_name_classifications.new(
                     type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin',
@@ -909,9 +899,7 @@ namespace :tw do
                   taxon_name.save!
                 end
 
-                # taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
-                # @todo: Make sure get_tw_taxon_name_id.value is string
-                get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s # original import made this an integer
+                get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s # force to string
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
                 get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
@@ -942,7 +930,7 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_otus_for_ill_formed_names_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_otus_for_ill_formed_names_hash => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_otus_for_ill_formed_names_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running create otus for ill-formed names hash...'
@@ -972,7 +960,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # also nomina nuda and dubia IDs to new parent.id hash
-        LoggedTask.define :create_sf_synonym_id_to_new_parent_id_hash => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_synonym_id_to_new_parent_id_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running SF new synonym, nomen novum, nomen dubium parent hash...'
@@ -1000,7 +988,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # creates Animalia taxon name subordinate to each project Root (and make hash of project.id, animalia.id
-        LoggedTask.define :create_animalia_below_root => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_animalia_below_root: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time after projects created BUT not after animalia species created (must restore to before)
 
           logger.info 'Running create_animalia_below_root...'
@@ -1010,7 +998,7 @@ namespace :tw do
 
           get_animalia_id = {} # key = TW.project_id, value = TW.taxon_name_id = 'Animalia'
 
-          get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.each_value do |project_id|
 
             this_project = Project.find(project_id)
             logger.info "working with project.id: #{project_id}, root_name: #{this_project.root_taxon_name.name}, root_name_id: #{this_project.root_taxon_name.id}"
@@ -1029,13 +1017,13 @@ namespace :tw do
 
           import.set('ProjectIDToAnimaliaID', get_animalia_id)
 
-          puts "ProjectIDToAnimaliaID"
+          puts 'ProjectIDToAnimaliaID'
           ap get_animalia_id
 
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_rank_hash => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_rank_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running create_rank_hash...'

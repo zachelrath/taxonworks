@@ -1,6 +1,6 @@
 module Tasks::Gis::ReportHelper
 
-  ALLHEADERS = ['Collecting Event', 'Collection Object', 'Bio classification']
+  ALLHEADERS = ['Collecting Event', 'Collection Object', 'Bio classification'].freeze
 
   # @return [String] for download button and hidden field for geographic area id
   def helper_download_button
@@ -51,7 +51,7 @@ module Tasks::Gis::ReportHelper
     retval = []
     %w(ce co bc).each { |column|
       group = @selected_column_names[column.to_sym]
-      group.keys.each { |type|
+      group.each_key { |type|
         retval.push(group[type].keys)
       } unless group.nil?
     } unless @selected_column_names.nil?
@@ -271,7 +271,7 @@ module Tasks::Gis::ReportHelper
 
   def report_paging
     if @list_collection_objects.any?
-      paginate(@list_collection_objects, :remote => true)
+      paginate(@list_collection_objects, remote: true)
     end
   end
 

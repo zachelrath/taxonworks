@@ -43,7 +43,7 @@ class Serial < ApplicationRecord
   include Shared::HasPapertrail
 
   # Class constants
-  ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published]
+  ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published].freeze
   # Class variables
   # Callbacks
   # Associations, in order: belongs_to, has_one,has_many
@@ -66,7 +66,7 @@ class Serial < ApplicationRecord
   has_many :immediately_succeeding_serials, through: :preceding_serial_chronologies, source: :succeeding_serial # class is 'Serial'
   # .to_a will return an array of serials - single succeeding chronology will be multiple serials if there is a split
 
-  accepts_nested_attributes_for :alternate_values, :reject_if => lambda { |av| av[:value].blank? }, :allow_destroy => true
+  accepts_nested_attributes_for :alternate_values, reject_if: lambda { |av| av[:value].blank? }, allow_destroy: true
 
   # TODO handle translations (which are simultaneous)
 
@@ -141,7 +141,7 @@ class Serial < ApplicationRecord
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
     else
-      ret_val = Serial.where("name = '#{Utilities::Strings.escape_single_quote(self.name)}' AND NOT (id = #{self.id})").to_a.count > 0
+      ret_val = Serial.where("name = '#{Utilities::Strings.escape_single_quote(self.name)}' AND NOT (id = #{self.id})").to_a.size > 0
     end
 
     if ret_val == false

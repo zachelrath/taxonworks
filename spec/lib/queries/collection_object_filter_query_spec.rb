@@ -236,7 +236,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
                                  project:           project,
                                  creator:           user,
                                  identifier_object: sp,
-                                 namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                 namespace:         (identifier.even? ? ns1 : ns2),
                                  identifier:        identifier)
         }
 
@@ -270,10 +270,10 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         2.times { FactoryBot.create(:valid_specimen, creator: pat, updater: pat_admin, project: project) }
         (1..10).each { |specimen|
           sp = FactoryBot.create(:valid_specimen,
-                                 creator:    ((specimen % 2) == 0 ? joe : pat),
+                                 creator:    (specimen.even? ? joe : pat),
                                  created_at: "200#{specimen - 1}/01/#{specimen}",
                                  updated_at: "200#{specimen - 1}/07/#{specimen}",
-                                 updater:    ((specimen % 2) == 0 ? pat : joe),
+                                 updater:    (specimen.even? ? pat : joe),
                                  project:    project)
         }
 
@@ -289,7 +289,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         expect(result.count).to eq(5)
 
         params = {user:                  joe, date_type_select: 'created_at',
-                  user_date_range_start: Date.today.to_s, user_date_range_end: Date.today.to_s}
+                  user_date_range_start: Time.zone.today.to_s, user_date_range_end: Time.zone.today.to_s}
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
         expect(result.count).to eq(20)
@@ -341,10 +341,10 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         ns2 = Namespace.second
         2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: project) }
         c_objs.each_with_index { |sp, index|
-          sp.update_column(:created_by_id, ((index % 2) == 0 ? joe.id : pat.id))
+          sp.update_column(:created_by_id, (index.even? ? joe.id : pat.id))
           sp.update_column(:created_at, "200#{index}/01/#{index + 1}")
           sp.update_column(:updated_at, "200#{index}/07/#{index + 1}")
-          sp.update_column(:updated_by_id, ((index % 2) == 0 ? pat.id : joe.id))
+          sp.update_column(:updated_by_id, (index.even? ? pat.id : joe.id))
           sp.update_column(:project_id, project.id)
           sp.save!
           FactoryBot.create(:identifier_local_catalog_number,
@@ -352,7 +352,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
                             project:           project,
                             creator:           user,
                             identifier_object: sp,
-                            namespace:         ((index % 2) == 0 ? ns1 : ns2),
+                            namespace:         (index.even? ? ns1 : ns2),
                             identifier:        (index + 1).to_s)
         }
 

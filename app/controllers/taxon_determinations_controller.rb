@@ -89,18 +89,18 @@ class TaxonDeterminationsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /taxon_determinations/download
   def download
-    send_data TaxonDetermination.generate_download( TaxonDetermination.where(project_id: sessions_current_project_id) ), type: 'text', filename: "taxon_determinations_#{DateTime.now.to_s}.csv"
+    send_data TaxonDetermination.generate_download( TaxonDetermination.where(project_id: sessions_current_project_id) ), type: 'text', filename: "taxon_determinations_#{DateTime.now}.csv"
   end
 
   private
     def set_taxon_determination
       @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
-      @recent_object = @taxon_determination 
+      @recent_object = @taxon_determination
     end
 
     def taxon_determination_params

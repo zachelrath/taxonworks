@@ -18,8 +18,13 @@ module TaxonWorks
     # -- all .rb files in that directory are automatically loaded.
 
     # Pre-load all libraries in /lib
+    # config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
 
-    config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
+    # TODO: clean module/class names so that this works:
+    # config.autoload_paths += Dir[ Rails.root.join('lib', '**/') ]
+
+    config.autoload_paths << "#{Rails.root}/lib"
+    config.autoload_paths << "#{Rails.root}/lib/vendor"
 
     # Breaks rake/loading becahse of existing Rails.application.eager_load! statements
     # config.eager_load_paths += %W(#{config.root}/lib) # #{config.root}/extras
@@ -60,21 +65,21 @@ module TaxonWorks
     # config.logger = Logger.new(STDOUT)
     # config.logger = Log4r::Logger.new('Application Log')
 
-    config.middleware.insert_before 0, Rack::Cors, :debug => true, :logger => (-> {Rails.logger}) do
+    config.middleware.insert_before 0, Rack::Cors, debug: true, logger: (-> {Rails.logger}) do
       allow do
         origins '*'
 
         resource '/cors',
-          :headers => :any,
-          :methods => [:post],
-          :credentials => false, # true,
-          :max_age => 0
+          headers: :any,
+          methods: [:post],
+          credentials: false, # true,
+          max_age: 0
 
         resource '*',
-          :headers => :any,
-          :methods => [:get, :post, :delete, :put, :patch, :options, :head],
-          :max_age => 0,
-          :credentials => false
+          headers: :any,
+          methods: [:get, :post, :delete, :put, :patch, :options, :head],
+          max_age: 0,
+          credentials: false
       end
     end
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'AttributeAnnotations', :type => :model do
+describe 'AttributeAnnotations', type: :model do
   let(:instance) {TestAttributeAnnotations.new}
   let(:klass) {TestAttributeAnnotations}
   let(:otu) { Otu.create(name: 'Aus') }
@@ -31,22 +31,22 @@ describe 'AttributeAnnotations', :type => :model do
     end
   end
 
-  context "instance methods" do
+  context 'instance methods' do
     before {
       instance.sti = otu
       instance.string = 'name'  # the column being annotated
       instance.text = 'Bus'     # the value of the annotation
     }
 
-    specify "#annotated_column" do
+    specify '#annotated_column' do
       expect(instance.annotated_column).to eq('name')
     end
 
-    specify "#annotation_value" do
+    specify '#annotation_value' do
       expect(instance.annotation_value).to eq('Bus')
     end
 
-    specify "#original_value" do
+    specify '#original_value' do
       expect(instance.original_value).to eq('Aus')
     end
   end

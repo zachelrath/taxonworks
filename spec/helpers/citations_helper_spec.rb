@@ -1,7 +1,7 @@
 require 'rails_helper'
 # require 'workbench/navigation_helper'
 
-describe CitationsHelper, :type => :helper do
+describe CitationsHelper, type: :helper do
   context 'a citation needs some helpers' do
     let(:otu) {FactoryBot.create(:valid_otu, name: 'Tigerbearcat') } 
     let(:source) {FactoryBot.create(:valid_source_bibtex, author: 'Smith, J.', year: '1929') } 
@@ -16,7 +16,7 @@ describe CitationsHelper, :type => :helper do
       expect(helper.citation_link(citation)).to match(link_text)
     end
 
-    specify "#citation_search_form" do
+    specify '#citation_search_form' do
       expect(helper.citations_search_form).to_not have_button('Edit')
       expect(helper.citations_search_form).to have_field('citation_id_for_quick_search_form')
     end

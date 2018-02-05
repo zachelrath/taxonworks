@@ -37,7 +37,7 @@ class Sequence < ApplicationRecord
 
   is_origin_for 'Sequence'
 
-  ALTERNATE_VALUES_FOR = [:name]
+  ALTERNATE_VALUES_FOR = [:name].freeze
 
   # Pass a Gene::Descriptor instance to clone that description to this sequence
   attr_accessor :describe_with
@@ -67,7 +67,7 @@ class Sequence < ApplicationRecord
   end
 
   validates_presence_of :sequence
-  validates_inclusion_of :sequence_type, in: ["DNA", "RNA", "AA"]
+  validates_inclusion_of :sequence_type, in: ['DNA', 'RNA', 'AA']
 
   protected
 

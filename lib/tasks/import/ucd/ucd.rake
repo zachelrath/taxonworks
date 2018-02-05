@@ -111,7 +111,7 @@ namespace :tw do
       end
 
       desc 'import UCD data, data_directory=/foo/ no_transaction=true reset=true'
-      task :import_ucd => [:data_directory, :environment] do |t|
+      task import_ucd: [:data_directory, :environment] do |t|
 
         if ENV['reset'] == 'true'
           Import.where(name: 'UCD IMPORT').destroy_all
@@ -287,9 +287,9 @@ namespace :tw do
         if !@data.done?(handle)
           puts 'as new'
 
-          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic', project_id: $project_id),
-                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological', project_id: $project_id),
-                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic', project_id: $project_id),
+          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic...............', project_id: $project_id),
+                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological...............', project_id: $project_id),
+                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic...............', project_id: $project_id),
           }.freeze
           
           path = @args[:data_directory] + 'KEYWORDS.txt'
@@ -302,7 +302,8 @@ namespace :tw do
            
             definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
             definition = definition + '(' + row['KeyWords'] + ')'
-          
+            definition = row['Meaning'].to_s.length < 21 ? row['Meaning'] + '.................' : row['Meaning']
+
             topic = Topic.find_or_create_by!(name: definition, definition: definition, project_id: $project_id)
 
             topic.tags.create(keyword: tags[row['Category']]) unless row['Category'].blank?
@@ -333,7 +334,7 @@ namespace :tw do
         # ValDate
         # CitDate
         path = @args[:data_directory] + 'MASTER.txt'
-        print "Handling MASTER -- Families "
+        print 'Handling MASTER -- Families '
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
@@ -549,7 +550,10 @@ namespace :tw do
             taxon.parent_id = parent if taxon.parent_id.nil? && parent
 #            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank?
 #            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank?
-            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil? && row['CitSpecies'].blank?
+            if taxon.rank_class.nil? && row['CitSpecies'].blank?
+              taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+              taxon.parent_id = taxon.parent.parent_id
+            end
             taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
             origgen = @data.all_genera_index[row['CitGenus']]
 
@@ -827,7 +831,7 @@ namespace :tw do
         handle = 'handle_language_ucd' 
         print "\nHandling LANGUAGE "
         if !@data.done?(handle)
-          puts "as new"
+          puts 'as new'
           lng_transl = {'al' => 'sq',
                         'ge' => 'ka',
                         'gr' => 'el',
@@ -867,7 +871,7 @@ namespace :tw do
         print "\nHandling COUNTRY (COUNTRY_MOD)"
 
         if !@data.done?(handle)
-          puts "as new"
+          puts 'as new'
           path = @args[:data_directory] + 'COUNTRY_MOD.txt'
 
           raise "file #{path} not found" if not File.exists?(path)
@@ -1041,9 +1045,9 @@ namespace :tw do
           stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
           # Need to translate | | to \textit{ } I think (bibtex format)
-          title = [row['Title'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_title].blank? ? fext_data[row['RefCode']][:ext_title] : nil)].compact.join(" ")
-          journal = [row['JourBook'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_journal].blank? ? fext_data[row['RefCode']][:ext_journal] : nil)].compact.join(" ")
-          author = [row['Author'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_author].blank? ? fext_data[row['RefCode']][:ext_author] : nil)].compact.join(" ")
+          title = [row['Title'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_title].blank? ? fext_data[row['RefCode']][:ext_title] : nil)].compact.join(' ')
+          journal = [row['JourBook'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_journal].blank? ? fext_data[row['RefCode']][:ext_journal] : nil)].compact.join(' ')
+          author = [row['Author'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_author].blank? ? fext_data[row['RefCode']][:ext_author] : nil)].compact.join(' ')
           if row['LanguageA'].blank? || @data.languages[row['LanguageA'].downcase].nil?
             language, language_id = nil, nil
           else
@@ -1079,14 +1083,14 @@ namespace :tw do
             b.project_sources.create
             b.identifiers.create(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'] + row['Letter'].to_s)
 
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Check'], value: row['Check'])         if !row['Check'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:ChalcFam'], value: row['ChalcFam'])   if !row['ChalcFam'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row['LanguageA']) if !row['LanguageA'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row['LanguageB']) if !row['LanguageB'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageC'], value: row['LanguageC']) if !row['LanguageC'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:M_Y'], value: row['M_Y'])             if !row['M_Y'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:Check'], value: row['Check'])         if !row['Check'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:ChalcFam'], value: row['ChalcFam'])   if !row['ChalcFam'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row['LanguageA']) if !row['LanguageA'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row['LanguageB']) if !row['LanguageB'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:LanguageC'], value: row['LanguageC']) if !row['LanguageC'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:M_Y'], value: row['M_Y'])             if !row['M_Y'].blank?
 
             if fext_data[row['RefCode']]
               b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row['RefCode']][:translate]) unless fext_data[row['RefCode']][:translate].blank?

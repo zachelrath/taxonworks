@@ -1,6 +1,6 @@
 class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification::Latinized
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000046'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000046'.freeze
 
   def self.applicable_ranks
     SPECIES_RANK_NAMES
@@ -34,9 +34,9 @@ class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification
       end
 
       t.update_columns(
-        :masculine_name => m_name,
-        :feminine_name => f_name,
-        :neuter_name => n_name
+        masculine_name: m_name,
+        feminine_name: f_name,
+        neuter_name: n_name
       )
     end
   end

@@ -82,7 +82,7 @@ class AssertedDistributionsController < ApplicationController
        label_html:      AssertedDistributionsHelper.asserted_distribution_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
-    render :json => data
+    render json: data
   end
 
   def search
@@ -95,7 +95,7 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/download
   def download
-    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: sessions_current_project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now.to_s}.csv"
+    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: sessions_current_project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now}.csv"
   end
 
   # GET /asserted_distributions/batch_load
@@ -108,7 +108,7 @@ class AssertedDistributionsController < ApplicationController
       digest_cookie(params[:file].tempfile, :batch_asserted_distributions_md5)
       render 'asserted_distributions/batch_load/simple/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load 
     end
   end

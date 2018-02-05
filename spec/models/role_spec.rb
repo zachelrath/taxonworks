@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Role, :type => :model do
+describe Role, type: :model do
   let(:role) {Role.new}
   let(:person) {FactoryBot.create(:valid_person)}
 
@@ -64,9 +64,9 @@ describe Role, :type => :model do
     end
   end
 
-  context "associations" do
-    context "belongs_to" do
-      specify "person" do
+  context 'associations' do
+    context 'belongs_to' do
+      specify 'person' do
         expect(role).to respond_to(:person)
       end
     end

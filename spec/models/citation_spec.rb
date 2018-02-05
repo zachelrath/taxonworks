@@ -6,10 +6,57 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   let(:source) { FactoryBot.create(:valid_source) }
   let(:topic) { FactoryBot.create(:valid_topic) }
 
+  let(:pdf) { fixture_file_upload( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) } 
+
+  context 'page links' do
+    let!(:document) { Document.create!( document_file: fixture_file_upload( fixture_file_upload( pdf, 'application/pdf')),
+                                       initialize_start_page: 10
+                                      ) } 
+
+    let!(:documentation) { Documentation.create!(documentation_object: source, document: document) }
+
+    before do
+      citation.citation_object = otu
+      citation.source = source
+      citation.pages = '99'
+      citation.save
+    end
+
+    specify '#first_page 1' do
+      citation.pages = '99'
+      expect(citation.first_page).to eq('99')
+    end
+
+    specify '#first_page 2' do
+      citation.pages = '22, 99'
+      expect(citation.first_page).to eq('22')
+    end
+
+    specify '#first_page 3' do
+      citation.pages = '2-44, ix'
+      expect(citation.first_page).to eq('2')
+    end
+
+    specify '#target_document' do
+      expect(citation.target_document).to eq(document)
+    end
+
+    specify '#target_document_page 1' do
+      citation.pages = '15'
+      expect(citation.target_document_page).to eq('6')
+    end
+
+    specify '#target_document_page 2' do
+      citation.pages = '99'
+      expect(citation.target_document_page).to eq(nil)
+    end
+
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify '#citation_object' do
-        expect(citation.citation_object = Otu.new).to be_truthy 
+        expect(citation.citation_object = Otu.new).to be_truthy
       end
 
       specify '#source' do
@@ -41,19 +88,19 @@ describe Citation, type: :model, group: [:annotators, :citations] do
     end
 
     specify 'finding by pages: "" will always create a new record' do
-      expect(Citation.find_or_create_by(citation_object: otu, source: source, pages: "").new_record?).to be_truthy 
+      expect(Citation.find_or_create_by(citation_object: otu, source: source, pages: '').new_record?).to be_truthy
     end
 
     specify '#citation_object_id is required by database' do
       c3.source = source
         c3.citation_object_type = 'Otu'
-        expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid) 
+        expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
       end
 
     specify '#citation_object_type is required by database' do
       c3.source = source
-      c3.citation_object_id = otu.id 
-        expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid) 
+      c3.citation_object_id = otu.id
+        expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
       end
 
     specify 'source_id is required' do
@@ -72,20 +119,20 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   specify '#citation_topic_attributes 2' do
     expect(Citation.create(citation_object: otu, source: source, citation_topics_attributes: [{topic_id: topic.id}])).to be_truthy
     expect(CitationTopic.count).to eq(1)
-      end
+  end
 
   specify '<< and citation_topics_attributes' do
-    otu.citations << Citation.new(source: source, citation_topics_attributes: [ {topic: topic} ])
-    expect(otu.topics.all).to include(topic) 
-    end
+    otu.citations << Citation.new(source: source, citation_topics_attributes: [{topic: topic}])
+    expect(otu.topics.all).to include(topic)
+  end
 
-    specify 'creating a new citation rejects citation_topic when topic not provided' do
-    expect(otu.citations << Citation.new(source: source, citation_topics_attributes: [ {pages: '123'} ])).to be_truthy
+  specify 'creating a new citation rejects citation_topic when topic not provided' do
+    expect(otu.citations << Citation.new(source: source, citation_topics_attributes: [{pages: '123'}])).to be_truthy
     expect(otu.topics.count).to eq(0)
-    end
+  end
 
   specify '#topics_attributes' do
-    otu.citations << Citation.new(source: source, topics_attributes: [ {name: 'Special topics', definition: 'This is a really long definition, really!'} ])
+    otu.citations << Citation.new(source: source, topics_attributes: [{name: 'Special topics', definition: 'This is a really long definition, really!'}])
     expect(Topic.count).to eq(1)
     expect(CitationTopic.count).to eq(1)
   end

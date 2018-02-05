@@ -23,9 +23,9 @@ module Protonym::SoftValidationExtensions
       sv_source_not_older_then_description: { set: :dates},
       sv_original_combination_relationships: { set: :original_combination_relationships},
       sv_extant_children: { set: :extant_children}
-    }
+    }.freeze
 
-    VALIDATIONS.keys.each do |k|
+    VALIDATIONS.each_key do |k|
       Protonym.soft_validate(k, VALIDATIONS[k])
     end
   end

@@ -101,20 +101,20 @@ class TagsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def exists
     if @tag = Tag.exists?(params.require(:global_id), params.require(:keyword_id), sessions_current_project_id)
       render :show
     else
-     render json: false
+      render json: false
     end
   end
 
   # GET /tags/download
   def download
-    send_data Download.generate_csv(Tag.where(project_id: sessions_current_project_id)), type: 'text', filename: "tags_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Tag.where(project_id: sessions_current_project_id)), type: 'text', filename: "tags_#{DateTime.now}.csv"
   end
 
   # POST /tags/batch_remove?keyword_id=123&klass=456

@@ -25,7 +25,7 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
         end
 
         context 'updating dwc_occurence' do
-         before { class_with_dwc_occurrence.set_dwc_occurrence }
+          before { class_with_dwc_occurrence.set_dwc_occurrence }
 
          # TODO: if/when we check for identity need to change the record to force an update
          specify 'uses the existing record' do
@@ -84,7 +84,7 @@ class TestIsDwcOccurrence < ApplicationRecord
   DWC_OCCURRENCE_MAP = {
     island: :treasure,
     disposition: :grumpy
-  }
+  }.freeze
 
   def treasure
     'Gold'

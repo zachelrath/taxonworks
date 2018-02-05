@@ -6,7 +6,7 @@ namespace :tw do
   #  We are intentionally not using the seed functionality.
   namespace :initialize do
     desc "create an administrator, and set ENV['user_id'] to that users id if successfull"
-    task :create_administrator => [:environment] do |t|
+    task create_administrator: [:environment] do |t|
       puts 'add an administrator: '
       print 'email: '
       email = STDIN.gets.strip
@@ -19,7 +19,12 @@ namespace :tw do
       password_confirmation = STDIN.noecho(&:gets).strip
       puts
 
-      u = User.create(name: name, email: email, password: password, password_confirmation: password_confirmation, is_administrator: true, self_created: true)
+      u = User.create!(name:                  name,
+                      email:                 email,
+                      password:              password,
+                      password_confirmation: password_confirmation,
+                      is_administrator:      true,
+                      self_created:          true)
 
       if u.valid?
         ENV['user_id'] = u.to_param
@@ -29,7 +34,7 @@ namespace :tw do
       end
     end
 
-    task :check_for_clean_database => [:environment] do |t|
+    task check_for_clean_database: [:environment] do |t|
       Rails.application.eager_load!
       errored = false
       ApplicationRecord.descendants.each do |klass|
@@ -49,7 +54,7 @@ namespace :tw do
 
     end
 
-    task :check_for_initialization_data => [:environment, :data_directory] do |t|
+    task check_for_initialization_data: [:environment, :data_directory] do |t|
       manifest = %w{
        ISO-639-2_utf-8.txt
        biorepositories.csv
@@ -81,7 +86,7 @@ namespace :tw do
       end
     end
 
-    task :validate_initialization => [:environment] do
+    task validate_initialization: [:environment] do
       errors = false
       # TODO: have @tuckerjd sanity check this list, is something missing from Geo?
       [Serial, SerialChronology, Identifier, DataAttribute, AlternateValue,
@@ -113,7 +118,7 @@ namespace :tw do
     #    :is_administrator: true
     #    :name: smith
     #
-    task :validate_users => [:environment, :data_directory] do
+    task validate_users: [:environment, :data_directory] do
       file      = @args[:data_directory] + 'users.yml'
       user_data = {}
 
@@ -138,7 +143,7 @@ namespace :tw do
     end
 
     desc 'Load users from users.yml - rake tw:initialize:load_users data_directory=/path/to/file/'
-    task :load_users => [:environment, :data_directory, :validate_users] do
+    task load_users: [:environment, :data_directory, :validate_users] do
       file      = @args[:data_directory] + 'users.yml'
       user_data = {}
       users     = []
@@ -159,19 +164,19 @@ namespace :tw do
     end
 
     desc 'Fully initialize a production server'
-    task :all => [
-      :environment,
-      :check_for_clean_database,
-      :check_for_initialization_data,
-      :validate_users,
-      :create_administrator,
-      :load_users,
-      :load_repositories,
-      :load_languages,
-      :load_geo,
-      :load_serials,
-      :validate_initialization
-    ] do
+    task all: [
+                :environment,
+                :check_for_clean_database,
+                :check_for_initialization_data,
+                :validate_users,
+                :create_administrator,
+                :load_users,
+                :load_repositories,
+                :load_languages,
+                :load_geo,
+                :load_serials,
+                :validate_initialization
+              ] do
       puts 'Success! Welcome to TaxonWorks.'.yellow
     end
 

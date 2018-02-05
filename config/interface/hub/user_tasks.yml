@@ -11,7 +11,6 @@
 #
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
-#   related_prefixes - an array members must be route prefixes and may include user tasks or data prefixes
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
 #   categories - an array of one ore more of [collecting_events, geographic_areas, source, nomenclature, matrix, dna]
 #   status - one of [complete, stable, prototype,  unknown (default) ]
@@ -224,7 +223,7 @@ cite_otus_task_task:
   description: 'Add citations to OTUs.  Optionally add topics to citations.  For example assertions like "Smith, 1920 referenced Biology of Aus bus" are possible.'
 new_taxon_name_task:
   hub: true
-  name: 'Edit taxon name'
+  name: 'New taxon name'
   related:
   categories:
     - nomenclature
@@ -291,3 +290,11 @@ edit_type_material_task:
     - collection_object
   status: prototype
   description: 'Add type material records for species group names.'
+new_combination_task:
+  hub: true
+  name: 'New combination'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Create a new or subsequent nomenclatural combination.'

@@ -12,7 +12,7 @@ module Housekeeping::Users
     scope :created_by_user, ->(user) { where(created_by_id: User.get_user_id(user)) }
     scope :updated_by_user, ->(user) { where(updated_by_id: User.get_user_id(user)) }
 
-    unless_user = lambda { self.class.name == "User" && self.self_created }
+    unless_user = lambda { self.class.name == 'User' && self.self_created }
     validates :creator, presence: true, unless: unless_user # lambda, proc, or block
     validates :updater, presence: true, unless: unless_user
 
@@ -46,8 +46,6 @@ module Housekeeping::Users
     def all_updaters
       User.joins("updated_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
     end
-
-    protected
   end
 
   # A convenience.  When provided creator and updater are set.  If creator exists updater is set.  Overrides creator/updater if provided second.  See tests.

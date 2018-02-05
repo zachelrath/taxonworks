@@ -47,7 +47,7 @@ class SqedDepiction < ApplicationRecord
   validates_presence_of  :metadata_map, :boundary_color
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
   validates_inclusion_of :boundary_finder, in: %w{Sqed::BoundaryFinder::ColorLineFinder Sqed::BoundaryFinder::Cross}
-  validates_inclusion_of :has_border, :in => [true, false]
+  validates_inclusion_of :has_border, in: [true, false]
 
   accepts_nested_attributes_for :depiction
 
@@ -91,13 +91,13 @@ class SqedDepiction < ApplicationRecord
   end
 
   def nearby_sqed_depictions(before = 5, after = 5)
-    a = SqedDepiction.where(project_id: project_id).where("id > ?", id).order(:id).limit(after)
-    b = SqedDepiction.where(project_id: project_id).where("id < ?", id).order('id DESC').limit(before)
+    a = SqedDepiction.where(project_id: project_id).where('id > ?', id).order(:id).limit(after)
+    b = SqedDepiction.where(project_id: project_id).where('id < ?', id).order('id DESC').limit(before)
     return { before: b, after: a}
   end
 
   def next_sqed_depiction
-    sd = SqedDepiction.where(project_id: project_id).where("id > ?", id).order(:id).limit(1)
+    sd = SqedDepiction.where(project_id: project_id).where('id > ?', id).order(:id).limit(1)
     sd.any? ? sd.first : SqedDepiction.where(project_id: project_id).first
   end
 

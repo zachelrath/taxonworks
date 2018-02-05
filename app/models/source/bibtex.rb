@@ -325,10 +325,10 @@ class Source::Bibtex < Source
     :journal,
     :year,
     :stated_year
-  ] # either year or stated_year is acceptable
+  ].freeze # either year or stated_year is acceptable
 
   belongs_to :serial, inverse_of: :sources
-  belongs_to :source_language, class_name: "Language", foreign_key: :language_id, inverse_of: :sources
+  belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
   # above to handle clash with bibtex language field.
 
   has_many :author_roles, -> {order('roles.position ASC')}, class_name: 'SourceAuthor', as: :role_object, validate: true
@@ -339,7 +339,7 @@ class Source::Bibtex < Source
 
   before_validation :create_authors, if: -> {!authors_to_create.nil?}
   before_validation :check_has_field
- 
+
   #region validations
   validates_inclusion_of :bibtex_type,
                          in:      ::VALID_BIBTEX_TYPES,
@@ -350,7 +350,7 @@ class Source::Bibtex < Source
                         message: 'is required when month or stated_year is provided'
 
   # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
-  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2, message: "must be an integer greater than 999 and no more than 2 years in the future"}
+  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2, message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
                         unless:  -> {day.nil?},
@@ -364,8 +364,8 @@ class Source::Bibtex < Source
   validates :day, date_day: {year_sym: :year, month_sym: :month},
             unless:         -> {year.nil? || month.nil?}
 
-  validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
-                              message: "[%{value}] is not a valid URL"}, allow_blank: true
+  validates :url, format: {with: URI::regexp(%w(http https ftp)),
+                              message: '[%{value}] is not a valid URL'}, allow_blank: true
 
   #endregion validations
 
@@ -394,7 +394,7 @@ class Source::Bibtex < Source
   # @return [BibTeX::Entry]
   #   entry equivalent to self
   def to_bibtex
-    b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
+    b = BibTeX::Entry.new(bibtex_type: self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
       if (!self.send(f).blank?) && !(f == :bibtex_type)
         b[f] = self.send(f)
@@ -470,6 +470,7 @@ class Source::Bibtex < Source
   # @return[String]
   #   A human readable version of the person list
   #   'firstname lastname, firstname lastname, & firstname lastname'
+  #  TODO: DEPRECATE
   def compute_human_names(type)
     method  = type
     methods = type + 's'
@@ -508,9 +509,9 @@ class Source::Bibtex < Source
   def self.new_from_bibtex(bibtex_entry = nil)
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-   
+
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
-     
+
     import_attributes = []
 
     bibtex_entry.fields.each do |key, value|
@@ -539,7 +540,7 @@ class Source::Bibtex < Source
   # @return [String] A string that represents the authors last_names and year (no suffix)
   def author_year
     return 'not yet calculated' if self.new_record?
-    [cached_author_string, year].compact.join(", ")
+    [cached_author_string, year].compact.join(', ')
   end
 
   # Modified from build, the issues with polymorphic has_many and build
@@ -634,10 +635,10 @@ class Source::Bibtex < Source
       else
         b = to_bibtex
         b.parse_names
-        return b.author.tokens.collect {|t| t.last}.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
+        return Utilities::Strings.authorship_sentence( b.author.tokens.collect {|t| t.last} )
       end
     else # use normalized records
-      return authors.collect {|a| a.full_last_name}.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
+      return Utilities::Strings.authorship_sentence( authors.collect {|a| a.full_last_name} )
     end
   end
 
@@ -741,18 +742,18 @@ class Source::Bibtex < Source
   # @return [Integer]
   #  The effective year of publication as per nomenclatural rules
   def nomenclature_year
-    cached_nomenclature_date.year 
+    cached_nomenclature_date.year
   end
 
   #  Month handling allows values from bibtex like 'may' to be handled
   def nomenclature_date
-    Utilities::Dates.nomenclature_date( day,  Utilities::Dates.month_index(month), year) 
+    Utilities::Dates.nomenclature_date( day,  Utilities::Dates.month_index(month), year)
   end
 
   # @return [Date]
   #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   def cached_nomenclature_date
-    if !persisted? 
+    if !persisted?
       nomenclature_date
     else
       read_attribute(:cached_nomenclature_date)
@@ -774,7 +775,7 @@ class Source::Bibtex < Source
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text')
-    cp = CiteProc::Processor.new(style: style, format: format) 
+    cp = CiteProc::Processor.new(style: style, format: format)
     cp.import(bibtex_bibliography.to_citeproc)
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end

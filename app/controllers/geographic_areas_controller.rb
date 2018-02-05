@@ -43,7 +43,7 @@ class GeographicAreasController < ApplicationController
   def autocomplete
     @geographic_areas = Queries::GeographicAreaAutocompleteQuery.new(params[:term]).all
     data              = @geographic_areas.collect do |t|
-      show_this = render_to_string(partial: 'autocomplete_geographic_area', locals: {term: params[:term], geographic_area: t } ) 
+      show_this = render_to_string(partial: 'autocomplete_geographic_area', locals: {term: params[:term], geographic_area: t } )
       {id:              t.id,
        label:           t.name,
        response_values: {
@@ -52,12 +52,12 @@ class GeographicAreasController < ApplicationController
        label_html:    show_this
       }
     end
-    render :json => data
+    render json: data
   end
 
   # GET /geographic_areas/download
   def download
-    send_data GeographicArea.generate_download(GeographicArea.all), type: 'text', filename: "geographic_areas_#{DateTime.now.to_s}.csv"
+    send_data GeographicArea.generate_download(GeographicArea.all), type: 'text', filename: "geographic_areas_#{DateTime.now}.csv"
   end
 
   private

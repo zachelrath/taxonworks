@@ -39,7 +39,7 @@ class ConfidencesController < ApplicationController
     @confidence = Confidence.new(confidence_params)
     respond_to do |format|
       if @confidence.save
-        format.html { redirect_to @confidence.confidence_object.metamorphosize, notice: 'Confidence was successfully created.' }
+        format.html { redirect_to url_for(@confidence.confidence_object.metamorphosize), notice: 'Confidence was successfully created.' }
         format.json { render :show, status: :created, location: @confidence }
       else
         format.html {
@@ -94,7 +94,7 @@ class ConfidencesController < ApplicationController
 
   # GET /confidences/download
   def download
-    send_data Download.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now}.csv"
   end
 
   private
