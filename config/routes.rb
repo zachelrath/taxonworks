@@ -1,5 +1,6 @@
 TaxonWorks::Application.routes.draw do
 
+  resources :lugs
   get :ping, controller: 'ping',  defaults: { format: :json }
   get :pingz, controller: 'ping',  defaults: { format: :json }
 

@@ -208,6 +208,12 @@ Supporting:
       - Loan
       - CollectionObject
       - Otu
+  Lug: 
+    status: :prototype
+    categories:
+      - source 
+    related_models:
+      - Otu
   ObservationMatrixColumn: 
     categories: 
       - matrix

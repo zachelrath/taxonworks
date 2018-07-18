@@ -1,0 +1,17 @@
+<%= form_with(model: lug, local: true) do |form| %>
+  <% if lug.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(lug.errors.count, "error") %> prohibited this lug from being saved:</h2>
+
+      <ul>
+      <% lug.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
