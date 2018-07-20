@@ -6,10 +6,6 @@ class OtusController < ApplicationController
   # GET /otus
   # GET /otus.json
   def index
-    # see app/views/otus/index.json.jbuilder
-  end
-
-  def index
     respond_to do |format|
       format.html do
         @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
@@ -201,7 +197,7 @@ class OtusController < ApplicationController
   private
 
   def set_otu
-    @otu           = Otu.with_project_id(sessions_current_project_id).find(params[:id])
+    @otu = Otu.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @otu
   end
 

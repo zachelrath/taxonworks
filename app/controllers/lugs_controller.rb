@@ -1,10 +1,24 @@
 class LugsController < ApplicationController
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
+
   before_action :set_lug, only: [:show, :edit, :update, :destroy]
 
   # GET /lugs
   # GET /lugs.json
   def index
-    @lugs = Lug.all
+    respond_to do |format|
+      format.html do
+        @recent_objects = Lug.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @lugs = Lug.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
+  end
+
+  def list
+    @lugs = Lug.with_project_id(sessions_current_project_id).page(params[:page])
   end
 
   # GET /lugs/1
@@ -61,10 +75,18 @@ class LugsController < ApplicationController
     end
   end
 
+  # GET /lugs/download
+  def download
+    send_data Download.generate_csv(Lug.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "lugs_#{DateTime.now}.csv"
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_lug
       @lug = Lug.find(params[:id])
+      @recent_object = @lug
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

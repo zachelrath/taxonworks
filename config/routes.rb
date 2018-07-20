@@ -1,6 +1,5 @@
 TaxonWorks::Application.routes.draw do
 
-  resources :lugs
   get :ping, controller: 'ping',  defaults: { format: :json }
   get :pingz, controller: 'ping',  defaults: { format: :json }
 
@@ -346,6 +345,10 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :batch_create
     end
+  end
+
+  resources :lugs do
+    concerns [:data_routes]
   end
 
   resources :namespaces do

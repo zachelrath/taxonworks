@@ -1,0 +1,38 @@
+<%= render("/shared/data/all/list/list_header", objects: @lugs) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Text/Name') -%>
+    <%= fancy_th_tag(name: 'Otu (endpoint)') -%>
+    <%= fancy_th_tag(name: 'Parent') -%>
+    <%= fancy_th_tag(name: 'Redirect') -%>
+    <%= fancy_th_tag(name: 'Description') -%>
+    <%= fancy_th_tag(name: 'Label') -%>
+    <%= fancy_th_tag(name: 'External URL') -%>
+    <%= fancy_th_tag(name: 'External URL text') -%>
+    <%= fancy_th_tag(name: 'Is public') -%>
+
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @lugs.each do |lug| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= lug.text %></td>
+          <td><%= otu_tag(lug.otu) %></td>
+          <td><%= lug_tag(lug.parent) %></td>
+          <td><%= lug_tag(lug.redirect %></td>
+          <td><%= lug.description %></td>
+          <td><%= lug.label %></td>
+          <td><%= lug.external_url %></td>
+          <td><%= lug.external_url_text %></td>
+          <td><%= lug.is_public -%></td>
+          <%= fancy_metadata_cells_tag(lug) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+

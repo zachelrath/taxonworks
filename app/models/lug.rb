@@ -59,9 +59,9 @@ class Lug < ApplicationRecord
   include SoftValidation
   include Shared::IsData
 
-
-  acts_as_list scope: [:parent_id]
+  acts_as_list scope: [:parent_id, :project_id]
 
   belongs_to :otu
+  belongs_to :redirect, class_name: 'Lug'
 
 end
