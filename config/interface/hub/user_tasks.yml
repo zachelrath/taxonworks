@@ -331,3 +331,10 @@ new_matrix_task:
     - matrix
   status: prototype
   description: 'Assign the rows and columns of observation matrices.'
+new_basic_key_task:
+  hub: true
+  name: 'New key'
+  related:
+  categories:
+  status: prototype
+  description: 'Create a traditional dichotomous key. Each node can have more than end point (multifurcating).  Matrix based data are NOT referenced.'

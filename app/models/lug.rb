@@ -1,4 +1,4 @@
-# A Lug is one side of taxonomic key couplet. 
+# A Lug is one side of taxonomic key couplet.  A lug without a parent is an entry point to a key.
 #
 # @!attribute text 
 #   @return [String]

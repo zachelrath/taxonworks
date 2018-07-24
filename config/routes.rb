@@ -628,6 +628,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :keys do
+      scope :basic_key, controller: 'tasks/keys/basic_key' do
+        get 'index', as: 'new_basic_key_task'
+      end
+    end
+
     scope :descriptors do
       scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
         get '(:id)', action: :index, as: 'new_descriptor_task'
