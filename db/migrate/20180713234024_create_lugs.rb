@@ -14,8 +14,8 @@ class CreateLugs < ActiveRecord::Migration[5.1]
       t.boolean :is_public
 
       t.references :project, index: true, foreign_key: true, type: :integer
-      t.references :created_by, type: :integer, index: {name: 'created_by_id_index'}, foreign_key: {name: 'lugs_created_by_id_fk', to_table: :users}
-      t.references :update_by, type: :integer, index: {name: 'updated_by_id_index'}, foreign_key: {name: 'lugs_updated_by_id_fk', to_table: :users}
+      t.references :created_by, type: :integer, index: {name: 'lug_created_by_id_index'}, foreign_key: {name: 'lugs_created_by_id_fk', to_table: :users}
+      t.references :updated_by, type: :integer, index: {name: 'lug_updated_by_id_index'}, foreign_key: {name: 'lugs_updated_by_id_fk', to_table: :users}
       
       t.timestamps
     end

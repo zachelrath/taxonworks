@@ -64,4 +64,8 @@ class Lug < ApplicationRecord
   belongs_to :otu
   belongs_to :redirect, class_name: 'Lug'
 
+  validates_presence_of :text
+
+  protected
+
 end

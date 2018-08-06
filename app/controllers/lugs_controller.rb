@@ -91,6 +91,6 @@ class LugsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def lug_params
-      params.fetch(:lug, {})
+      params.require(:lug).permit(:text, :otu_id, :parent_id, :redirect_id, :position, :description, :label, :external_url, :external_url_text, :is_public)
     end
 end

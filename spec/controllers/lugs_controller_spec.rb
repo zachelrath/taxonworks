@@ -24,17 +24,15 @@ require 'rails_helper'
 # `rails-controller-testing` gem.
 
 RSpec.describe LugsController, type: :controller do
+  before(:each) {
+    sign_in
+  }
+
 
   # This should return the minimal set of attributes required to create a valid
   # Lug. As you add validations to Lug, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
-  }
-
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
-  }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_lug).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -88,7 +86,7 @@ RSpec.describe LugsController, type: :controller do
 
     context "with invalid params" do
       it "returns a success response (i.e. to display the 'new' template)" do
-        post :create, params: {lug: invalid_attributes}, session: valid_session
+        post :create, params: {lug: {text: nil}}, session: valid_session
         expect(response).to be_success
       end
     end
@@ -96,15 +94,12 @@ RSpec.describe LugsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
-      }
 
       it "updates the requested lug" do
         lug = Lug.create! valid_attributes
-        put :update, params: {id: lug.to_param, lug: new_attributes}, session: valid_session
+        put :update, params: {id: lug.to_param, lug: {text: 'new couplet'}}, session: valid_session
         lug.reload
-        skip("Add assertions for updated state")
+        expect(lug.text).to eq('new couplet') 
       end
 
       it "redirects to the lug" do
@@ -117,7 +112,7 @@ RSpec.describe LugsController, type: :controller do
     context "with invalid params" do
       it "returns a success response (i.e. to display the 'edit' template)" do
         lug = Lug.create! valid_attributes
-        put :update, params: {id: lug.to_param, lug: invalid_attributes}, session: valid_session
+        put :update, params: {id: lug.to_param, lug: {text: nil}}, session: valid_session
         expect(response).to be_success
       end
     end
