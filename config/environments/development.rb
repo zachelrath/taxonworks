@@ -40,6 +40,9 @@ TaxonWorks::Application.configure do
   # Load local settings
   Settings.load_from_settings_file(config, :development)
 
+  # ActiveStorage: Store files locally.
+  config.active_storage.service = :local
+
   BetterErrors.editor='x-mine://open?file=%{file}&line=%{line}' if defined? BetterErrors
 
   require 'taxonworks'
