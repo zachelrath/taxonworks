@@ -1,10 +1,10 @@
 module Plugins::DropzoneHelper
 
-  def dropzone_form(image = nil) 
+  def dropzone_form(image = nil)
     if image.new_record?
-      form_tag( images_path, method: :post, authenticity_token: form_authenticity_token, class: :dropzone, id: 'basic-images') 
+      form_tag( images_path, method: :post, authenticity_token: form_authenticity_token, class: :dropzone, id: 'basic-images')
     else
-      form_tag( image_path(image), method: :patch, authenticity_token: form_authenticity_token, class: :dropzone, id: 'basic-images') 
+      form_tag( image_path(image), method: :patch, authenticity_token: form_authenticity_token, class: :dropzone, id: 'basic-images')
     end
   end
 
@@ -16,5 +16,12 @@ module Plugins::DropzoneHelper
     end
   end
 
+  def dropzone_sound_form(sound = nil)
+    if sound.new_record?
+      form_tag( sounds_path, method: :post, authenticity_token: form_authenticity_token, class: :dropzone, id: 'basic-sounds')
+    else
+      form_tag( sounds_path(sound), method: :patch, authenticity_token: form_authenticity_token, class: :dropzone, id: 'basic-sounds')
+    end
+  end
 
 end

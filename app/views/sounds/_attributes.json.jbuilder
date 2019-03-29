@@ -1,0 +1,1 @@
+json.partial! '/shared/data/all/metadata', object: sound

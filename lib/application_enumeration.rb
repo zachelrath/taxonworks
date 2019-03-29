@@ -1,4 +1,5 @@
-Dir[Rails.root.to_s + '/app/models/*.rb'].each { |file| require_dependency file }
+# TODO: "/\/sound\.rb$/ =~ file" is a temporary workaround to make Active Storage work with Sound
+Dir[Rails.root.to_s + '/app/models/*.rb'].each { |file| require_dependency file unless /\/sound\.rb$/ =~ file }
 
 # Methods for enumerating models, tables, columns etc.
 #

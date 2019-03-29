@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_03_25_191626) do
+ActiveRecord::Schema.define(version: 2019_03_27_181805) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1564,6 +1564,17 @@ ActiveRecord::Schema.define(version: 2019_03_25_191626) do
     t.index ["url"], name: "index_shortened_urls_on_url"
   end
 
+  create_table "sounds", force: :cascade do |t|
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_sounds_on_created_by_id"
+    t.index ["project_id"], name: "index_sounds_on_project_id"
+    t.index ["updated_by_id"], name: "index_sounds_on_updated_by_id"
+  end
+
   create_table "sources", id: :serial, force: :cascade do |t|
     t.integer "serial_id"
     t.string "address"
@@ -2133,6 +2144,7 @@ ActiveRecord::Schema.define(version: 2019_03_25_191626) do
   add_foreign_key "serials", "serials", column: "translated_from_serial_id", name: "serials_translated_from_serial_id_fkey"
   add_foreign_key "serials", "users", column: "created_by_id", name: "serials_created_by_id_fkey"
   add_foreign_key "serials", "users", column: "updated_by_id", name: "serials_updated_by_id_fkey"
+  add_foreign_key "sounds", "projects"
   add_foreign_key "sources", "languages", name: "sources_language_id_fkey"
   add_foreign_key "sources", "serials", name: "sources_serial_id_fkey"
   add_foreign_key "sources", "users", column: "created_by_id", name: "sources_created_by_id_fkey"

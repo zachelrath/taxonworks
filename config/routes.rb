@@ -574,7 +574,9 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-
+  resources :sounds do
+    concerns [:data_routes]
+  end
 
   resources :sources do
     concerns [:data_routes]

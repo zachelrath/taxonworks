@@ -192,6 +192,8 @@ Supporting:
     status: :stable
     categories:
       - collection_object
+  Sound:
+    status: :prototype
   Label:
     status: :prototype
     categories:

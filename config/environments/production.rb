@@ -85,6 +85,9 @@ TaxonWorks::Application.configure do
 
   # Load local settings
   Settings.load_from_settings_file(config, :production)
+
+  # ActiveStorage: Store files locally.
+  config.active_storage.service = :local
   
   require 'taxonworks'
   require 'taxonworks_autoload'

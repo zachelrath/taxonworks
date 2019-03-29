@@ -1,0 +1,8 @@
+<div class="flexbox">
+  <div class="item item1" style="display:flex;justify-content:center;">
+    <%= form_for @sound do |f| %>
+      <%= f.file_field :sound_file %>
+      <%= f.submit %>
+	<% end %>
+  </div>
+</div>
