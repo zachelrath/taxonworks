@@ -14,7 +14,12 @@
         <input class="normal-input" type="text" v-model="depiction.figure_label" placeholder="Label">
       </div>
       <textarea class="normal-input separate-bottom" type="text" v-model="depiction.caption" placeholder="Caption"/>
-
+      <label>
+        <input
+          type="checkbox"
+          v-model="depiction.is_metadata_depiction">
+          Is data depiction
+      </label>
       <div class="separate-top separate-bottom">
         <ul class="no_bullets">
           <li
@@ -59,7 +64,7 @@
 
       <div>
         <button type="button" class="normal-input button button-submit" @click="updateFigure()">Update</button>
-        <button type="button" class="normal-input button button-default" @click="depiction = undefined">New</button>
+        <button type="button" class="normal-input button button-default" @click="depiction = undefined">Back</button>
       </div>
     </div>
     <div v-else>
