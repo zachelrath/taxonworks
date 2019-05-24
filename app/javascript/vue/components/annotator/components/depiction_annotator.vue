@@ -70,14 +70,22 @@
           v-model="isDataDepiction">
         Is data depiction
       </label>
-      <display-list label="object_tag" :list="list" :edit="true" @edit="depiction = $event" @delete="removeItem" class="list"/>
+      <table-list
+        :attributes="['object_tag','is_metadata_depiction']"
+        :header="['Image', 'Is data', '']"
+        :list="list"
+        :edit="true"
+        :destroy="true"
+        @edit="depiction = $event"
+        @delete="removeItem"
+        class="list"/>
     </div>
   </div>
 </template>
 <script>
 
 import CRUD from '../request/crud.js'
-import displayList from './displayList.vue'
+import TableList from '../../table_list'
 import dropzone from '../../dropzone.vue'
 import annotatorExtend from '../components/annotatorExtend.js'
 import Autocomplete from 'components/autocomplete'
@@ -87,7 +95,7 @@ export default {
   mixins: [CRUD, annotatorExtend],
   components: {
     dropzone,
-    displayList,
+    TableList,
     Autocomplete,
     OtuPicker
   },
