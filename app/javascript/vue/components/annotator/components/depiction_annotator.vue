@@ -21,6 +21,9 @@
           Is data depiction
       </label>
       <div class="separate-top separate-bottom">
+        <p>
+          <h4>Move to</h4>
+        </p>
         <ul class="no_bullets">
           <li
             v-for="type in objectTypes"
