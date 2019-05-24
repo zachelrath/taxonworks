@@ -1,6 +1,5 @@
 <template>
   <div class="depiction_annotator">
-    asdfasdfas
     <div class="field" v-if="depiction">
       <div class="separate-bottom">
         <img
