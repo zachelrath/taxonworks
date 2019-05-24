@@ -1,5 +1,6 @@
 <template>
   <div class="depiction_annotator">
+    asdfasdfas
     <div class="field" v-if="depiction">
       <div class="separate-bottom">
         <img
@@ -64,6 +65,12 @@
     </div>
     <div v-else>
       <dropzone class="dropzone-card separate-bottom" @vdropzone-sending="sending" @vdropzone-success="success" ref="figure" id="figure" url="/depictions" :use-custom-dropzone-options="true" :dropzone-options="dropzone"/>
+      <label>
+        <input
+          type="checkbox"
+          v-model="isDataDepiction">
+        Is data depiction
+      </label>
       <display-list label="object_tag" :list="list" :edit="true" @edit="depiction = $event" @delete="removeItem" class="list"/>
     </div>
   </div>
@@ -119,6 +126,7 @@ export default {
           url: '/collection_objects/autocomplete'
         }
       ],
+      isDataDepiction: false,
       selectedType: undefined,
       selectedObject: undefined
     }
@@ -130,6 +138,7 @@ export default {
     },
     'sending': function (file, xhr, formData) {
       formData.append('depiction[annotated_global_entity]', decodeURIComponent(this.globalId))
+      formData.append('depiction[is_metadata_depiction]', this.isDataDepiction)
     },
     updateFigure () {
       if(this.updateObjectType) {
