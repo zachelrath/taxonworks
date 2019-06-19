@@ -93,6 +93,9 @@ gem 'sqed', '0.5.6'
 gem 'dwc-archive', '~> 1.0.1'
 gem 'biodiversity', '~> 3.5.0'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
+gem 'gnparser'
+gem 'gnfinder', '~> 0.2.2'
+gem 'rubyBHL', '~> 0.3'
 
 # Minor Utils/helpers
 gem 'awesome_print', '~> 1.8'

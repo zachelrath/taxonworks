@@ -439,3 +439,10 @@ visualize_confidences_task:
   categories:
   status: stable 
   description: 'See a graph of confidences applied per data type.'
+index_bhl_task:
+  hub: true
+  name: 'BHL Metadata'
+  related:
+  categories:
+  status: prototype
+  description: 'Exploring links between BHL and GNAMES'

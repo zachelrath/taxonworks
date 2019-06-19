@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :metadata do
+      scope :bhl, controller: 'tasks/metadata/bhl' do
+        get 'index', as: 'index_bhl_task'
+      end
+    end
+
 
   scope :asserted_distribution do
     scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do

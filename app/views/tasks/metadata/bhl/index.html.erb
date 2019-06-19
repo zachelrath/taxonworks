@@ -1,0 +1,31 @@
+
+
+<% @serial = Serial.where(name: 'Canadian Entomologist.').first -%>
+
+<% req1 = RubyBHL::Request.new(method: :PublicationSearchAdvanced, params: {'title' => @serial.name, 'titleop' => 'phrase'}, api_key: '1e285c8c-dee8-4ad0-b48e-a5ca8ef008c5') %>
+<% res1 = RubyBHL::Response.new(request: req1) -%>
+
+<h2><%= req1.search_url -%></h2>
+<%= ap(res1.json).html_safe %>
+
+<% results1 = res1.json['Result'] %>
+
+<h2> Individual </h2>
+
+<% results1.each do |r| %>
+
+  <%= r['TitleID'] %>
+  <% rq = RubyBHL::Request.new(method: :GetTitleMetadata, params: {'id' => r['TitleID']}, api_key: '1e285c8c-dee8-4ad0-b48e-a5ca8ef008c5') %>
+  <% rs = RubyBHL::Response.new(request: rq) -%>
+
+  <h2><%= rq.search_url -%></h2>
+  <%= ap(rs.json).html_safe %>
+
+  
+
+
+
+<% end %>
+
+
+
