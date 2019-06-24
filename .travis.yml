@@ -28,24 +28,24 @@ install:
   - sed  -i -e 's/^\s*spec\s*$//' .dockerignore
   - >
     sudo docker build . -t tw-travis -f .travis/Dockerfile
-      --build-arg UID=$(id -u) --build-arg GID=$(id -g)
-      --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
-      --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
+    --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+    --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
+    --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
   - >
     docker run -d $(printenv | grep -E '^TRAVIS_' | sed 's/TRAVIS_/-e /g')
-      -e TEST_WORKERS=$TEST_WORKERS -e COVERALLS_PARALLEL=$COVERALLS_PARALLEL -e RAILS_ENV=test
-      -e TEST_WORKER=$TEST_WORKER
-      -v "$TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes":/home/travis/app/spec/fixtures/vcr_cassettes
-      -v "$TRAVIS_BUILD_DIR/public/packs-test":/home/travis/app/public/packs-test
-      -v "$TRAVIS_BUILD_DIR/public/assets":/home/travis/app/public/assets
-      -v "$TRAVIS_BUILD_DIR/tmp/cache":/home/travis/app/tmp/cache
-      --name tw_container
-      tw-travis
+    -e TEST_WORKERS=$TEST_WORKERS -e COVERALLS_PARALLEL=$COVERALLS_PARALLEL -e RAILS_ENV=test
+    -e TEST_WORKER=$TEST_WORKER
+    -v "$TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes":/home/travis/app/spec/fixtures/vcr_cassettes
+    -v "$TRAVIS_BUILD_DIR/public/packs-test":/home/travis/app/public/packs-test
+    -v "$TRAVIS_BUILD_DIR/public/assets":/home/travis/app/public/assets
+    -v "$TRAVIS_BUILD_DIR/tmp/cache":/home/travis/app/tmp/cache
+    --name tw_container
+    tw-travis
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
   - >
     docker exec -it tw_container sudo -u postgres psql -c
-      "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
+    "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
   - docker exec -it tw_container bash -l -c "bundle exec rake db:create RAILS_ENV=test"
   - docker exec -it tw_container bash -l -c "bundle exec rake db:migrate RAILS_ENV=test"
 script:
