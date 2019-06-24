@@ -16,7 +16,9 @@ RUN apt-get update && \
                        imagemagick libmagickcore-dev libmagickwand-dev libpq-dev libproj-dev libgeos-dev libgeos++-dev \
 && apt-get clean \
 && locale-gen en_US.UTF-8 \
-&& rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+&& rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* \
+&& sed -i.bak 's/local\s*all\s*all\s*peer/local all all trust/' /etc/postgresql/10/main/pg_hba.conf
+
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
@@ -40,6 +42,10 @@ RUN mkdir firefox-latest \
 
 ENV PATH $HOME/firefox-latest/firefox:$PATH
 RUN firefox --version
+
+# Install yarn
+RUN curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
+ENV PATH=$HOME/.yarn/bin:$PATH
 
 # Install node-sass
 RUN npm rebuild node-sass
@@ -71,4 +77,19 @@ COPY Gemfile .
 COPY Gemfile.lock .
 RUN  bundle install --without development production
 
-CMD ["/bin/bash", "-l"]
+# Copy complete repo
+COPY --chown=travis:travis . .
+
+# Set up
+RUN cp config/application_settings.yml.travis config/application_settings.yml \
+&&  cp config/database.yml.travis config/database.yml \
+&&  cp config/secrets.yml.example config/secrets.yml \
+&&  mkdir -p tmp/downloads
+
+# Create mount points
+RUN mkdir -p spec/fixtures/vcr_cassettes \
+&&  mkdir -p public/packs-test \
+&&  mkdir -p public/assets \
+&&  mkdir -p tmp/cache
+
+CMD ["sudo", "-u", "postgres", "/usr/lib/postgresql/10/bin/postgres", "-D", "/var/lib/postgresql/10/main", "-c", "config_file=/etc/postgresql/10/main/postgresql.conf"]

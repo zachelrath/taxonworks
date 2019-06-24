@@ -1,66 +1,58 @@
-language: ruby 
+language: minimal
+services:
+  - docker
 cache:
-  bundler: true
   directories:
-    - $TRAVIS_BUILD_DIR/node_modules
     - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
     - $TRAVIS_BUILD_DIR/public/packs-test
     - $TRAVIS_BUILD_DIR/public/assets
     - $TRAVIS_BUILD_DIR/tmp/cache
-    - /home/travis/.rvm/ 
+    - /home/travis/docker-images
 dist: xenial
-# sudo: required
-rvm:
-  - 2.5.1
-bundler_args: --without development production
 branches:
   only:
     - master
     - development
     - dates
-addons:
-  postgresql: "10"
-  firefox: "latest"
-  apt:
-    update: true 
-    packages:
-      - imagemagick
-      - libgeos-dev
-      - libproj-dev
-      - postgresql-10-postgis-2.4
-      - postgresql-10-postgis-2.4-scripts
-      - postgresql-10
-      - postgresql-client-10
-      - postgresql-contrib-10
+    - docker-travis
 env:
   global:
     - TEST_WORKERS=5
     - COVERALLS_PARALLEL=true
   matrix:
-    - TEST_WORKER=0
     - TEST_WORKER=1
-    - TEST_WORKER=2
-    - TEST_WORKER=3
-    - TEST_WORKER=4
-services:
-  - postgresql
 before_install:
-  - nvm install 10.15.3
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
-  - export PATH=$HOME/.yarn/bin:$PATH
+  - >
+    [ ! -f $HOME/docker-images/tw-travis-image.tar ] || docker load -i $HOME/docker-images/tw-travis-image.tar
 install:
-  - npm install
-  - bundle install --without development production
+  - sed  -i -e 's/^\s*spec\s*$//' .dockerignore
+  - >
+    sudo docker build . -t tw-travis -f .travis/Dockerfile
+      --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+      --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
+      --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
+  - >
+    docker run -d $(printenv | grep -E '^TRAVIS_' | sed 's/TRAVIS_/-e /g')
+      -e TEST_WORKERS=$TEST_WORKERS -e COVERALLS_PARALLEL=$COVERALLS_PARALLEL -e RAILS_ENV=test
+      -e TEST_WORKER=$TEST_WORKER
+      -v "$TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes":/home/travis/app/spec/fixtures/vcr_cassettes
+      -v "$TRAVIS_BUILD_DIR/public/packs-test":/home/travis/app/public/packs-test
+      -v "$TRAVIS_BUILD_DIR/public/assets":/home/travis/app/public/assets
+      -v "$TRAVIS_BUILD_DIR/tmp/cache":/home/travis/app/tmp/cache
+      --name tw_container
+      tw-travis
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
-  - cp config/application_settings.yml.travis config/application_settings.yml
-  - cp config/database.yml.travis config/database.yml
-  - cp config/secrets.yml.example config/secrets.yml
-  - mkdir -p tmp/downloads
-  - bundle exec rake db:create RAILS_ENV=test # database user by default is `travis` 
-  - bundle exec rake db:migrate RAILS_ENV=test
+  - >
+    docker exec -it tw_container sudo -u postgres psql -c
+      "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
+  - docker exec -it tw_container bash -l -c "bundle exec rake db:create RAILS_ENV=test"
+  - docker exec -it tw_container bash -l -c "bundle exec rake db:migrate RAILS_ENV=test"
 script:
-  - .travis/spec_runner.sh
+  - docker exec -it tw_container bash -l -c '.travis/spec_runner.sh'
+after_script:
+  - mkdir -p $HOME/docker-images
+  - docker save -o $HOME/docker-images/tw-travis-image.tar tw-travis
 notifications:
   email:
     recipients:
