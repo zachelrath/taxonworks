@@ -22,6 +22,11 @@ env:
   matrix:
     - TEST_WORKER=1
 before_install:
+  - env | grep -E '^TRAVIS_' > .env
+  - echo "TEST_WORKERS=$TEST_WORKERS" >> .env
+  - echo "COVERALLS_PARALLEL=$COVERALLS_PARALLEL" >> .env
+  - echo "RAILS_ENV=test" >> .env
+  - echo "TEST_WORKER=$TEST_WORKER" >> .env
   - >
     [ ! -f $HOME/docker-images/tw-travis-image.tar ] || docker load -i $HOME/docker-images/tw-travis-image.tar
 install:
@@ -32,9 +37,7 @@ install:
     --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
     --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
   - >
-    docker run -d $(printenv | grep -E '^TRAVIS_' | sed 's/TRAVIS_/-e /g')
-    -e TEST_WORKERS=$TEST_WORKERS -e COVERALLS_PARALLEL=$COVERALLS_PARALLEL -e RAILS_ENV=test
-    -e TEST_WORKER=$TEST_WORKER
+    docker run -d --env-file .env
     -v "$TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes":/home/travis/app/spec/fixtures/vcr_cassettes
     -v "$TRAVIS_BUILD_DIR/public/packs-test":/home/travis/app/public/packs-test
     -v "$TRAVIS_BUILD_DIR/public/assets":/home/travis/app/public/assets
@@ -44,11 +47,11 @@ install:
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
   - >
-    until docker exec -it tw_container sudo -u postgres psql -c
-    "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;";
+    until docker exec -it tw_container sudo -u postgres psql -c \
+    "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"; \
     do sleep 1; done
-  - docker exec -it tw_container bash -l -c "bundle exec rake db:create RAILS_ENV=test"
-  - docker exec -it tw_container bash -l -c "bundle exec rake db:migrate RAILS_ENV=test"
+  - docker exec -it tw_container bash -l -c "bundle exec rake db:create"
+  - docker exec -it tw_container bash -l -c "bundle exec rake db:migrate"
 script:
   - docker exec -it tw_container bash -l -c '.travis/spec_runner.sh'
 after_script:
