@@ -44,6 +44,8 @@ install:
     -v "$TRAVIS_BUILD_DIR/tmp/cache":/home/travis/app/tmp/cache
     --name tw_container
     tw-travis
+  - mkdir -p $HOME/docker-images
+  - docker save -o $HOME/docker-images/tw-travis-image.tar tw-travis
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
   - >
@@ -54,9 +56,6 @@ before_script:
   - docker exec -it tw_container bash -l -c "bundle exec rake db:migrate"
 script:
   - docker exec -it tw_container bash -l -c '.travis/spec_runner.sh'
-after_script:
-  - mkdir -p $HOME/docker-images
-  - docker save -o $HOME/docker-images/tw-travis-image.tar tw-travis
 notifications:
   email:
     recipients:
