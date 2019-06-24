@@ -44,8 +44,9 @@ install:
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
   - >
-    docker exec -it tw_container sudo -u postgres psql -c
-    "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
+    until docker exec -it tw_container sudo -u postgres psql -c
+    "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;";
+    do sleep 1; done
   - docker exec -it tw_container bash -l -c "bundle exec rake db:create RAILS_ENV=test"
   - docker exec -it tw_container bash -l -c "bundle exec rake db:migrate RAILS_ENV=test"
 script:
