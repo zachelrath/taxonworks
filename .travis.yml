@@ -45,19 +45,21 @@ install:
     -v "$TRAVIS_BUILD_DIR/tmp/cache":/home/travis/app/tmp/cache
     --name tw_container
     tw-travis
-  - mkdir -p $HOME/docker-images
-  - export IMAGE_ID=$(docker image ls tw-travis -q --no-trunc)
-  - docker image ls --no-trunc --all
-  - >
-    ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
-    docker save -o $HOME/docker-images/tw-travis-image.tar tw-travis &&
-    docker image ls tw-travis -q --no-trunc > $HOME/docker-images/id
-before_script:
-  - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
   - >
     until docker exec -it tw_container sudo -u postgres psql -c
     "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;";
     do sleep 1; done
+  - mkdir -p $HOME/docker-images
+  - export IMAGE_ID=$(docker image ls tw-travis -q --no-trunc)
+  - docker image ls --no-trunc --all
+  - docker system prune --all
+  - docker image ls --no-trunc --all
+  - >
+    ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
+    docker save -o $HOME/docker-images/tw-travis-image.tar $(docker images -q) &&
+    docker image ls tw-travis -q --no-trunc > $HOME/docker-images/id
+before_script:
+  - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
   - docker exec -it tw_container bash -l -c "bundle exec rake db:create"
   - docker exec -it tw_container bash -l -c "bundle exec rake db:migrate"
 script:
