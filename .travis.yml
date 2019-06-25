@@ -36,6 +36,7 @@ install:
   - echo "public/assets" >> .dockerignore
   - echo "public/packs-test" >> .dockerignore
   - echo "tmp/cache" >> .dockerignore
+  - cp Gemfile Gemfile.lock package.json package-lock.json .travis
   - >
     docker build .travis -t tw-travis-base
     --build-arg UID=$(id -u) --build-arg GID=$(id -g)
