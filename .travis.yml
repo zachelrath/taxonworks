@@ -56,7 +56,7 @@ install:
   - docker image ls --no-trunc --all
   - >
     ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
-    docker save -o $HOME/docker-images/tw-travis-image.tar $(docker images -q) &&
+    docker save -o $HOME/docker-images/tw-travis-image.tar $(docker images -q --all) &&
     docker image ls tw-travis -q --no-trunc > $HOME/docker-images/id
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
