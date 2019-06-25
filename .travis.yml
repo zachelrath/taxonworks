@@ -29,6 +29,7 @@ before_install:
   - echo "TEST_WORKER=$TEST_WORKER" >> .env
   - >
     [ ! -f $HOME/docker-images/tw-travis-image.tar ] || docker load -i $HOME/docker-images/tw-travis-image.tar
+  - docker image ls --no-trunc --all
 install:
   - sed  -i -e 's/^\s*spec\s*$//' .dockerignore
   - >
@@ -46,6 +47,7 @@ install:
     tw-travis
   - mkdir -p $HOME/docker-images
   - export IMAGE_ID=$(docker image ls tw-travis -q --no-trunc)
+  - docker image ls --no-trunc --all
   - >
     ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
     docker save -o $HOME/docker-images/tw-travis-image.tar tw-travis &&
