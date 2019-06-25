@@ -22,10 +22,11 @@ env:
   matrix:
     - TEST_WORKER=1
 before_install:
-  - env | grep -E '^TRAVIS_' > $HOME/.env
-  - env | grep -E '^COVERALLS_' >> $HOME/.env
+  - env | grep -E '^TRAVIS' > $HOME/.env
+  - env | grep -E '^COVERALLS' >> $HOME/.env
   - env | grep -E '^TEST_' >> $HOME/.env
   - echo "RAILS_ENV=test" >> $HOME/.env
+  - echo "CI=true" >> $HOME/.env
   - >
     [ ! -f $HOME/docker-images/tw-travis-image.tar ] ||
     docker load -i $HOME/docker-images/tw-travis-image.tar
