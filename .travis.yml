@@ -44,7 +44,7 @@ install:
     --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
   - docker run -it tw-travis-base true
   - docker image ls --no-trunc --all
-  - docker system prune --all -f
+  - docker image prune --all -f
   - docker image ls --no-trunc --all
   - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
   - >
