@@ -22,11 +22,11 @@ env:
   matrix:
     - TEST_WORKER=1
 before_install:
-  - env | grep -E '^TRAVIS_' > .env
-  - echo "TEST_WORKERS=$TEST_WORKERS" >> .env
-  - echo "COVERALLS_PARALLEL=$COVERALLS_PARALLEL" >> .env
-  - echo "RAILS_ENV=test" >> .env
-  - echo "TEST_WORKER=$TEST_WORKER" >> .env
+  - env | grep -E '^TRAVIS_' > $HOME/.env
+  - echo "TEST_WORKERS=$TEST_WORKERS" >> $HOME/.env
+  - echo "COVERALLS_PARALLEL=$COVERALLS_PARALLEL" >> $HOME/.env
+  - echo "RAILS_ENV=test" >> $HOME/.env
+  - echo "TEST_WORKER=$TEST_WORKER" >> $HOME/.env
   - >
     [ ! -f $HOME/docker-images/tw-travis-image.tar ] || docker load -i $HOME/docker-images/tw-travis-image.tar
   - docker image ls --no-trunc --all
@@ -38,7 +38,7 @@ install:
     --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
     --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
   - >
-    docker run -d --env-file .env
+    docker run -d --env-file $HOME/.env
     -v "$TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes":/home/travis/app/spec/fixtures/vcr_cassettes
     -v "$TRAVIS_BUILD_DIR/public/packs-test":/home/travis/app/public/packs-test
     -v "$TRAVIS_BUILD_DIR/public/assets":/home/travis/app/public/assets
