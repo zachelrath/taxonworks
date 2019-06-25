@@ -55,6 +55,7 @@ install:
   - docker build . -t tw-travis -f .travis/Dockerfile.travis
   - >
     docker run -d --env-file $HOME/.env
+    -v "$TRAVIS_BUILD_DIR/.git":/home/travis/app/.git
     -v "$TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes":/home/travis/app/spec/fixtures/vcr_cassettes
     -v "$TRAVIS_BUILD_DIR/public/packs-test":/home/travis/app/public/packs-test
     -v "$TRAVIS_BUILD_DIR/public/assets":/home/travis/app/public/assets
