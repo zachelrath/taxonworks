@@ -45,7 +45,11 @@ install:
     --name tw_container
     tw-travis
   - mkdir -p $HOME/docker-images
-  - docker save -o $HOME/docker-images/tw-travis-image.tar tw-travis
+  - export IMAGE_ID=$(docker image ls tw-travis -q --no-trunc)
+  - >
+    ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
+    docker save -o $HOME/docker-images/tw-travis-image.tar tw-travis &&
+    docker image ls tw-travis -q --no-trunc > $HOME/docker-images/id
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
   - >
