@@ -76,20 +76,3 @@ RUN npm install
 COPY Gemfile .
 COPY Gemfile.lock .
 RUN  bundle install --without development production
-
-# Copy complete repo
-COPY --chown=travis:travis . .
-
-# Set up
-RUN cp config/application_settings.yml.travis config/application_settings.yml \
-&&  cp config/database.yml.travis config/database.yml \
-&&  cp config/secrets.yml.example config/secrets.yml \
-&&  mkdir -p tmp/downloads
-
-# Create mount points
-RUN mkdir -p spec/fixtures/vcr_cassettes \
-&&  mkdir -p public/packs-test \
-&&  mkdir -p public/assets \
-&&  mkdir -p tmp/cache
-
-CMD ["sudo", "-u", "postgres", "/usr/lib/postgresql/10/bin/postgres", "-D", "/var/lib/postgresql/10/main", "-c", "config_file=/etc/postgresql/10/main/postgresql.conf"]

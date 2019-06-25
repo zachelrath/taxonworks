@@ -23,24 +23,34 @@ env:
     - TEST_WORKER=1
 before_install:
   - env | grep -E '^TRAVIS_' > $HOME/.env
-  - echo "TEST_WORKERS=$TEST_WORKERS" >> $HOME/.env
-  - echo "COVERALLS_PARALLEL=$COVERALLS_PARALLEL" >> $HOME/.env
+  - env | grep -E '^COVERALLS_' >> $HOME/.env
+  - env | grep -E '^TEST_' >> $HOME/.env
   - echo "RAILS_ENV=test" >> $HOME/.env
-  - echo "TEST_WORKER=$TEST_WORKER" >> $HOME/.env
   - >
-    [ ! -f $HOME/docker-images/tw-travis-image.tar ] || docker load -i $HOME/docker-images/tw-travis-image.tar
+    [ ! -f $HOME/docker-images/tw-travis-image.tar ] ||
+    docker load -i $HOME/docker-images/tw-travis-image.tar
   - docker image ls --no-trunc --all
 install:
   - sed -i -e 's/^\s*spec\s*$//' .dockerignore
   - echo "spec/fixtures/vcr_cassettes" >> .dockerignore
-  - echo "/public/assets" >> .dockerignore
+  - echo "public/assets" >> .dockerignore
   - echo "public/packs-test" >> .dockerignore
   - echo "tmp/cache" >> .dockerignore
   - >
-    docker build . -t tw-travis -f .travis/Dockerfile
+    docker build .travis -t tw-travis-base
     --build-arg UID=$(id -u) --build-arg GID=$(id -g)
     --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
     --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
+  - docker run -it tw-travis-base true
+  - docker image ls --no-trunc --all
+  - docker system prune --all -f
+  - docker image ls --no-trunc --all
+  - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
+  - >
+    ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
+    docker save -o $HOME/docker-images/tw-travis-image.tar $(docker images -q --all) &&
+    docker image ls tw-travis-base -q --no-trunc > $HOME/docker-images/id
+  - docker build . -t tw-travis -f .travis/Dockerfile.travis
   - >
     docker run -d --env-file $HOME/.env
     -v "$TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes":/home/travis/app/spec/fixtures/vcr_cassettes
@@ -54,14 +64,6 @@ install:
     "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;";
     do sleep 1; done
   - mkdir -p $HOME/docker-images
-  - export IMAGE_ID=$(docker image ls tw-travis -q --no-trunc)
-  - docker image ls --no-trunc --all
-  - docker system prune --all -f
-  - docker image ls --no-trunc --all
-  - >
-    ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
-    docker save -o $HOME/docker-images/tw-travis-image.tar $(docker images -q --all) &&
-    docker image ls tw-travis -q --no-trunc > $HOME/docker-images/id
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
   - docker exec -it tw_container bash -l -c "bundle exec rake db:create"
