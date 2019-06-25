@@ -22,14 +22,15 @@ env:
   matrix:
     - TEST_WORKER=1
 before_install:
+  - docker version
   - env | grep -E '^TRAVIS' > $HOME/.env
   - env | grep -E '^COVERALLS' >> $HOME/.env
   - env | grep -E '^TEST_' >> $HOME/.env
   - echo "RAILS_ENV=test" >> $HOME/.env
   - echo "CI=true" >> $HOME/.env
   - >
-    [ ! -f $HOME/docker-images/tw-travis-image.tar ] ||
-    docker load -i $HOME/docker-images/tw-travis-image.tar
+    [ ! -f $HOME/docker-images/tw-travis-image.tar.gz ] ||
+    docker load -i $HOME/docker-images/tw-travis-image.tar.gz
   - docker image ls --no-trunc --all
 install:
   - sed -i -e 's/^\s*spec\s*$//' .dockerignore
@@ -50,7 +51,7 @@ install:
   - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
   - >
     ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
-    docker save -o $HOME/docker-images/tw-travis-image.tar $(docker images -q --all) &&
+    docker save $(docker images -q --all) | gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
     docker image ls tw-travis-base -q --no-trunc > $HOME/docker-images/id
   - docker build . -t tw-travis -f .travis/Dockerfile.travis
   - >
