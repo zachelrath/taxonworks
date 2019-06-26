@@ -1,11 +1,10 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 AS tw-travis-base
 
 RUN apt-get update \
 &&  apt-get install -y curl \
 &&  curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-&&  apt-get install wget \
 &&  echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list \
-&&  wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+&&  curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
 RUN apt-get update && \
     apt-get install -y locales \
@@ -19,42 +18,33 @@ RUN apt-get update && \
 && rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* \
 && sed -i.bak 's/local\s*all\s*all\s*peer/local all all trust/' /etc/postgresql/10/main/pg_hba.conf
 
-
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
 
 # Switch to unprivileged user
 ARG UID
 ARG GID
-RUN groupadd -g $GID -o travis
-RUN useradd -m -u $UID -g $GID -G sudo -o -s /bin/bash travis
-RUN echo "travis ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN groupadd -g $GID -o travis \
+&& useradd -m -u $UID -g $GID -G sudo -o -s /bin/bash travis \
+&& echo "travis ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER travis
 ENV HOME /home/travis
 WORKDIR $HOME
 
-ENV FIREFOX_SOURCE_URL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64'
 RUN mkdir firefox-latest \
-&&  wget --no-verbose -O firefox-latest/firefox-latest.tar.bz2 $FIREFOX_SOURCE_URL \
 &&  cd firefox-latest \
-&&  tar -xf firefox-latest.tar.bz2
+&&  curl -sL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64' | \
+    tar -xjf - \
+&&  curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0 \
+&&  gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB \
+&&  curl -L get.rvm.io | bash -s stable \
+&&  echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"' \
+&&  npm rebuild node-sass
 
-ENV PATH $HOME/firefox-latest/firefox:$PATH
+ENV PATH $HOME/.yarn/bin:$HOME/firefox-latest/firefox:$PATH
+
 RUN firefox --version
-
-# Install yarn
-RUN curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0
-ENV PATH=$HOME/.yarn/bin:$PATH
-
-# Install node-sass
-RUN npm rebuild node-sass
-
-# Install RVM
-RUN gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-RUN curl -L get.rvm.io | bash -s stable
-
-RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 
 RUN mkdir ./app
 WORKDIR ./app
@@ -76,3 +66,20 @@ RUN npm install
 COPY Gemfile .
 COPY Gemfile.lock .
 RUN  bundle install --without development production
+
+FROM tw-travis-base AS tw-travis
+
+# Copy complete repo
+COPY --chown=travis:travis . .
+
+# Set up
+RUN cp config/application_settings.yml.travis config/application_settings.yml \
+&&  cp config/database.yml.travis config/database.yml \
+&&  cp config/secrets.yml.example config/secrets.yml \
+&&  mkdir -p tmp/downloads \
+&&  mkdir -p spec/fixtures/vcr_cassettes \
+&&  mkdir -p public/packs-test \
+&&  mkdir -p public/assets \
+&&  mkdir -p tmp/cache
+
+CMD ["sudo", "-u", "postgres", "/usr/lib/postgresql/10/bin/postgres", "-D", "/var/lib/postgresql/10/main", "-c", "config_file=/etc/postgresql/10/main/postgresql.conf"]

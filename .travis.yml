@@ -40,20 +40,20 @@ install:
   - echo "tmp/cache" >> .dockerignore
   - cp Gemfile Gemfile.lock package.json package-lock.json .travis
   - >
-    docker build .travis -t tw-travis-base
+    docker build --target tw-travis-base -t tw-travis-base .travis
     --build-arg UID=$(id -u) --build-arg GID=$(id -g)
     --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
     --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
-  - docker run -it tw-travis-base true
-  - docker image ls --no-trunc --all
-  - docker image prune --all -f
-  - docker image ls --no-trunc --all
   - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
   - >
     ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
-    docker save $(docker images -q --all) | gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
+    docker save ubuntu:16.04 tw-travis-base | gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
     docker image ls tw-travis-base -q --no-trunc > $HOME/docker-images/id
-  - docker build . -t tw-travis -f .travis/Dockerfile.travis
+  - >
+    docker build -t tw-travis -f .travis/Dockerfile .
+    --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+    --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
+    --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
   - >
     docker run -d --env-file $HOME/.env
     -v "$TRAVIS_BUILD_DIR/.git":/home/travis/app/.git
