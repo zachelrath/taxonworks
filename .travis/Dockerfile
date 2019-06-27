@@ -16,7 +16,8 @@ RUN apt-get update && \
 && apt-get clean \
 && locale-gen en_US.UTF-8 \
 && rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* \
-&& sed -i.bak 's/local\s*all\s*all\s*peer/local all all trust/' /etc/postgresql/10/main/pg_hba.conf
+&& sed -i.bak 's/local\s*all\s*all\s*peer/local all all trust/' /etc/postgresql/10/main/pg_hba.conf \
+&& printf '\nfsync = off\nsynchronous_commit = off\nfull_page_writes = off\n' >> /etc/postgresql/10/main/postgresql.conf
 
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
@@ -25,6 +26,7 @@ ENV LANG=en_US.UTF-8 \
 # Switch to unprivileged user
 ARG UID
 ARG GID
+
 RUN groupadd -g $GID -o travis \
 && useradd -m -u $UID -g $GID -G sudo -o -s /bin/bash travis \
 && echo "travis ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers

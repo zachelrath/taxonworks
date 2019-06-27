@@ -18,8 +18,6 @@
 tags/
 .bundle_bin/
 
-spec
-
 config/database.yml
 config/secrets.yml
 config/application_settings.yml
@@ -43,6 +41,7 @@ public/images/tmp
 public/system
 public/index.html
 public/packs-test
+public/assets
 
 spec
 travis

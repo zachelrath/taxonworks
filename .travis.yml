@@ -28,6 +28,7 @@ before_install:
   - env | grep -E '^TEST_' >> $HOME/.env
   - echo "RAILS_ENV=test" >> $HOME/.env
   - echo "CI=true" >> $HOME/.env
+  - mkdir -p $HOME/docker-images
   - >
     [ ! -f $HOME/docker-images/tw-travis-image.tar.gz ] ||
     docker load -i $HOME/docker-images/tw-travis-image.tar.gz
@@ -35,25 +36,21 @@ before_install:
 install:
   - sed -i -e 's/^\s*spec\s*$//' .dockerignore
   - echo "spec/fixtures/vcr_cassettes" >> .dockerignore
-  - echo "public/assets" >> .dockerignore
-  - echo "public/packs-test" >> .dockerignore
-  - echo "tmp/cache" >> .dockerignore
   - cp Gemfile Gemfile.lock package.json package-lock.json .travis
   - >
-    docker build --target tw-travis-base -t tw-travis-base .travis
+    export TW_BUILD_ARGS="
     --build-arg UID=$(id -u) --build-arg GID=$(id -g)
     --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
-    --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
+    --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')"
+  - docker build --target tw-travis-base -t tw-travis-base .travis $TW_BUILD_ARGS
+  - docker run -it tw-travis-base true
+  - docker image prune --all -f
   - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
   - >
     ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
-    docker save ubuntu:16.04 tw-travis-base | gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
+    docker save $(docker images -q --all) | gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
     docker image ls tw-travis-base -q --no-trunc > $HOME/docker-images/id
-  - >
-    docker build -t tw-travis -f .travis/Dockerfile .
-    --build-arg UID=$(id -u) --build-arg GID=$(id -g)
-    --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
-    --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')
+  - docker build -t tw-travis -f .travis/Dockerfile . $TW_BUILD_ARGS
   - >
     docker run -d --env-file $HOME/.env
     -v "$TRAVIS_BUILD_DIR/.git":/home/travis/app/.git
@@ -67,7 +64,6 @@ install:
     until docker exec -it tw_container sudo -u postgres psql -c
     "CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;";
     do sleep 1; done
-  - mkdir -p $HOME/docker-images
 before_script:
   - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
   - docker exec -it tw_container bash -l -c "bundle exec rake db:create"
