@@ -5,17 +5,18 @@ cache:
     - $TRAVIS_BUILD_DIR/public/packs-test
     - $TRAVIS_BUILD_DIR/public/assets
     - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
-    - /home/travis/docker-images
+    - /home/travis/docker
 before_cache:
   - docker rm -f $(docker ps -aq)
   - docker run -d tw-travis-base true && docker run -d ubuntu:16.04 true
-  - docker image prune --all
+  - docker image prune --all -f
+  - docker rm -f $(docker ps -aq)
   - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
+  - sudo service docker stop
   - >
-    ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
-    docker save ubuntu:16.04 tw-travis-base $(docker images -q --all) |
-    gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
-    docker image ls tw-travis-base -q --no-trunc > $HOME/docker-images/id
+    ([ -f $HOME/docker/id ] && [ $(< $HOME/docker/id) == "$IMAGE_ID" ]) ||
+    echo $IMAGE_ID > $HOME/docker-images/id &&
+    sudo tar -czf $HOME/docker/storage.tar.gz /var/lib/docker
 dist: xenial
 branches:
   only:
@@ -30,17 +31,17 @@ env:
   matrix:
     - TEST_WORKER=1
 before_install:
-  - sudo service docker start
-  - docker version
   - env | grep -E '^TRAVIS' > $HOME/.env
   - env | grep -E '^COVERALLS' >> $HOME/.env
   - env | grep -E '^TEST_' >> $HOME/.env
   - echo "RAILS_ENV=test" >> $HOME/.env
   - echo "CI=true" >> $HOME/.env
-  - mkdir -p $HOME/docker-images
+  - mkdir -p $HOME/docker
   - >
-    [ ! -f $HOME/docker-images/tw-travis-image.tar.gz ] ||
-    docker load -i $HOME/docker-images/tw-travis-image.tar.gz
+    [ ! -f $HOME/docker/storage.tar.gz ] ||
+    cd / && sudo tar -xf $HOME/docker/storage.tar.gz
+  - sudo service docker start
+  - docker version
   - docker image ls --no-trunc --all
 install:
   - sed -i -e 's/^\s*spec\s*$//' .dockerignore
