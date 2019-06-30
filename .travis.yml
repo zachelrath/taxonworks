@@ -15,7 +15,7 @@ before_cache:
   - sudo service docker stop
   - >
     ([ -f $HOME/docker/id ] && [ $(< $HOME/docker/id) == "$IMAGE_ID" ]) ||
-    echo $IMAGE_ID > $HOME/docker-images/id &&
+    echo $IMAGE_ID > $HOME/docker/id &&
     sudo tar -czf $HOME/docker/storage.tar.gz /var/lib/docker
 dist: xenial
 branches:
