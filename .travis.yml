@@ -16,7 +16,7 @@ before_cache:
   - >
     ([ -f $HOME/docker/id ] && [ $(< $HOME/docker/id) == "$IMAGE_ID" ]) ||
     echo $IMAGE_ID > $HOME/docker/id &&
-    sudo tar -czf $HOME/docker/storage.tar.gz /var/lib/docker
+    sudo tar -Pczf $HOME/docker/storage.tar.gz /var/lib/docker
 dist: xenial
 branches:
   only:
@@ -39,7 +39,7 @@ before_install:
   - mkdir -p $HOME/docker
   - >
     [ ! -f $HOME/docker/storage.tar.gz ] ||
-    (sudo rm -rf /var/lib/docker && cd / && sudo tar -xf $HOME/docker/storage.tar.gz)
+    (sudo rm -rf /var/lib/docker && sudo tar -Pxf $HOME/docker/storage.tar.gz)
   - sudo service docker start
   - docker version
   - docker image ls --no-trunc --all
