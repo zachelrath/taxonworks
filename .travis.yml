@@ -1,22 +1,23 @@
 language: minimal
+services:
+  - docker
 cache:
   directories:
     - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
     - $TRAVIS_BUILD_DIR/public/packs-test
     - $TRAVIS_BUILD_DIR/public/assets
     - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
-    - /home/travis/docker
+    - /home/travis/docker-images
 before_cache:
   - docker rm -f $(docker ps -aq)
   - docker run -d tw-travis-base true && docker run -d ubuntu:16.04 true
-  - docker image prune --all -f
-  - docker rm -f $(docker ps -aq)
+  - docker image prune --all
   - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
-  - sudo service docker stop
   - >
-    ([ -f $HOME/docker/id ] && [ $(< $HOME/docker/id) == "$IMAGE_ID" ]) ||
-    echo $IMAGE_ID > $HOME/docker/id &&
-    sudo tar -Pczf $HOME/docker/storage.tar.gz /var/lib/docker
+    ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
+    docker save ubuntu:16.04 tw-travis-base $(docker images -q --all) |
+    gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
+    docker image ls tw-travis-base -q --no-trunc > $HOME/docker-images/id
 dist: xenial
 branches:
   only:
@@ -36,12 +37,10 @@ before_install:
   - env | grep -E '^TEST_' >> $HOME/.env
   - echo "RAILS_ENV=test" >> $HOME/.env
   - echo "CI=true" >> $HOME/.env
-  - mkdir -p $HOME/docker
+  - mkdir -p $HOME/docker-images
   - >
-    [ ! -f $HOME/docker/storage.tar.gz ] ||
-    (sudo rm -rf /var/lib/docker && sudo tar -Pxf $HOME/docker/storage.tar.gz)
-  - sudo service docker start
-  - docker version
+    [ ! -f $HOME/docker-images/tw-travis-image.tar.gz ] ||
+    docker load -i $HOME/docker-images/tw-travis-image.tar.gz
   - docker image ls --no-trunc --all
 install:
   - sed -i -e 's/^\s*spec\s*$//' .dockerignore
