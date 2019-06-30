@@ -30,7 +30,11 @@ env:
     - TEST_WORKERS=5
     - COVERALLS_PARALLEL=true
   matrix:
+    - TEST_WORKER=0
     - TEST_WORKER=1
+    - TEST_WORKER=2
+    - TEST_WORKER=3
+    - TEST_WORKER=4
 before_install:
   - env | grep -E '^TRAVIS' > $HOME/.env
   - env | grep -E '^COVERALLS' >> $HOME/.env
