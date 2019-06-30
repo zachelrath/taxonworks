@@ -11,7 +11,7 @@ cache:
 before_cache:
   - docker rm -f $(docker ps -aq)
   - docker run -d tw-travis-base true && docker run -d ubuntu:16.04 true
-  - docker image prune --all
+  - docker image prune --all -f
   - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
   - >
     ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
