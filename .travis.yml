@@ -1,6 +1,4 @@
 language: minimal
-services:
-  - docker
 cache:
   directories:
     - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
@@ -8,6 +6,16 @@ cache:
     - $TRAVIS_BUILD_DIR/public/assets
     - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
     - /home/travis/docker-images
+before_cache:
+  - docker rm -f $(docker ps -aq)
+  - docker run -d tw-travis-base true && docker run -d ubuntu:16.04 true
+  - docker image prune --all
+  - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
+  - >
+    ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
+    docker save ubuntu:16.04 tw-travis-base $(docker images -q --all) |
+    gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
+    docker image ls tw-travis-base -q --no-trunc > $HOME/docker-images/id
 dist: xenial
 branches:
   only:
@@ -22,6 +30,7 @@ env:
   matrix:
     - TEST_WORKER=1
 before_install:
+  - sudo service docker start
   - docker version
   - env | grep -E '^TRAVIS' > $HOME/.env
   - env | grep -E '^COVERALLS' >> $HOME/.env
@@ -43,13 +52,6 @@ install:
     --build-arg RUBY_VERSION=$(cat Gemfile | grep -e "^ruby\s*.*$" | sed -E "s/[^']*'([^']*)'/ruby-\1/")
     --build-arg BUNDLER_VERSION=$(tail -n1 Gemfile.lock | tr -d '[:space:]')"
   - docker build --target tw-travis-base -t tw-travis-base .travis $TW_BUILD_ARGS
-  - docker run -it tw-travis-base true
-  - docker image prune --all -f
-  - export IMAGE_ID=$(docker image ls tw-travis-base -q --no-trunc)
-  - >
-    ([ -f $HOME/docker-images/id ] && [ $(< $HOME/docker-images/id) == "$IMAGE_ID" ]) ||
-    docker save $(docker images -q --all) | gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
-    docker image ls tw-travis-base -q --no-trunc > $HOME/docker-images/id
   - docker build -t tw-travis -f .travis/Dockerfile . $TW_BUILD_ARGS
   - >
     docker run -d --env-file $HOME/.env

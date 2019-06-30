@@ -3,6 +3,8 @@ set -e
 
 export TW_PATH=$(git rev-parse --show-toplevel)
 
+cd $TW_PATH
+
 sed -i -e 's/^\s*spec\s*$//' .dockerignore
 echo "spec/fixtures/vcr_cassettes" >> .dockerignore
 
