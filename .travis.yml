@@ -25,6 +25,7 @@ branches:
     - development
     - dates
     - docker-travis
+    - build-with-assets
 env:
   global:
     - TEST_WORKERS=5
