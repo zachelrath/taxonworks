@@ -37,7 +37,7 @@ DOCKER_ARGS='-d \
 export TEST_WORKER=no
 export TMP_PATH=/tmp
 eval "docker run $DOCKER_ARGS --name tw_container tw-travis"
-docker exec -it tw_container bash -l -c "bundle exec rake assets:precompile"
+docker exec -it tw_container bash -l -c "NODE_OPTIONS='--max-old-space-size=4096' bundle exec rake assets:precompile"
 docker rm -f tw_container
 
 for TEST_WORKER in `seq 0 4`; do
