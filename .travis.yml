@@ -26,6 +26,7 @@ branches:
     - dates
     - docker-travis
     - build-with-assets
+    - rails6
 env:
   global:
     - TEST_WORKERS=5

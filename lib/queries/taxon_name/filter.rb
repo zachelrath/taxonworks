@@ -99,6 +99,11 @@ module Queries
       #   if 'false' then return only names with descendents
       attr_accessor :leaves
 
+
+      # @return [String, nil]
+      #   &taxon_name_type=<Protonym|Combination|Hybrid>
+      attr_accessor :taxon_name_type
+
       # @param params [Params] 
       #   a permitted via controller
       def initialize(params)
@@ -120,6 +125,7 @@ module Queries
         @leaves = (params[:leaves] == 'true' ? true : false) if !params[:leaves].nil?
         @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
         @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
+        @taxon_name_type = params[:taxon_name_type]
 
         @authors = (params[:authors] == 'true' ? true : false) if !params[:authors].nil?
 
@@ -220,9 +226,7 @@ module Queries
       # @return Scope
       def type_metadata_facet
         return nil if type_metadata.nil?
-
         subquery = ::TypeMaterial.where(::TypeMaterial.arel_table[:protonym_id].eq(::TaxonName.arel_table[:id])).arel.exists
-
         ::TaxonName.where(type_metadata ? subquery : subquery.not)
       end
 
@@ -259,6 +263,11 @@ module Queries
       def with_nomenclature_code
         return nil if nomenclature_code.nil?
         table[:rank_class].matches(nomenclature_code)
+      end
+
+      def taxon_name_type_facet
+        return nil if taxon_name_type.blank?
+        table[:type].eq(taxon_name_type)
       end
 
       def cached_name
@@ -316,6 +325,7 @@ module Queries
           parent_facet,
           with_nomenclature_group,
           with_nomenclature_code,
+          taxon_name_type_facet
         ].compact
 
         return nil if clauses.empty?
