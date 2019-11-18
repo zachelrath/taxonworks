@@ -1,10 +1,17 @@
 scope :tasks do
-    scope :matrix_image do
-      scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
-        get :index, as: 'index_matrix_image_task'
-      end
-    end
 
+  scope :exports do
+    scope :coldp, controller: 'tasks/exports/coldp' do
+      get 'index', as: 'export_coldp_task'
+      get 'download', as: 'download_coldp_task'
+    end
+  end
+
+  scope :matrix_image do
+    scope :matrix_image, controller: 'tasks/matrix_image/matrix_image' do
+      get :index, as: 'index_matrix_image_task'
+    end
+  end
 
   scope :asserted_distribution do
     scope :new_asserted_distribution, controller: 'tasks/asserted_distribution/new_asserted_distribution' do
@@ -38,7 +45,7 @@ scope :tasks do
 
   scope :descriptors do
     scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
-      get '(:id)', action: :index, as: 'new_descriptor_task'
+      get '(:descriptor_id)', action: :index, as: 'new_descriptor_task'
     end
   end
 
@@ -99,7 +106,7 @@ scope :tasks do
     scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
       get 'index', as: 'index_search_locality_task'
     end 
- 
+
     scope :parse do
       scope :stepwise do
         scope :dates, controller: 'tasks/collecting_events/parse/stepwise/dates' do
@@ -124,22 +131,12 @@ scope :tasks do
   end
 
   scope :collection_objects do
-    scope :browse, controller: 'tasks/collection_objects/browse' do
-      get 'index', as: 'browse_collection_objects_task'
+    scope :filter, controller: 'tasks/collection_objects/filter' do
+      get '/', as: 'collection_objects_filter_task', action: :index
     end
 
-    scope :filter, controller: 'tasks/collection_objects/filter' do
-      get 'index', as: 'collection_objects_filter_task' #'index_area_and_date_task'
-      get 'find', as: 'find_collection_objects_task' # 'find_area_and_date_task'
-      get 'set_area'  , as: 'set_area_for_collection_object_filter'
-      get 'set_date', as: 'set_date_for_collection_object_filter'
-      get 'set_otu', as: 'set_otu_for_collection_object_filter'
-      get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
-      get 'set_user_date_range', as: 'set_user_date_range_for_collection_object_filter'
-      get 'get_dates_of_type', as: 'get_dates_type_of_for_collection_object_filter'
-      # get 'get_updated_at', as: 'get_updated_at_for_collection_object_filter'
-      get 'download', action: 'download', as: 'download_collection_object_filter_result'
-      post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
+    scope :browse, controller: 'tasks/collection_objects/browse' do
+      get '/', as: 'browse_collection_objects_task', action: :index
     end
   end
 
@@ -266,6 +263,10 @@ scope :tasks do
   end
 
   scope :nomenclature do
+      scope :stats, controller: 'tasks/nomenclature/stats' do
+        get :index, as: 'index_stats_task'
+      end
+
     scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
       get 'index', as: 'new_combination_task'
     end
@@ -290,9 +291,13 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+      scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
+        get :index, as: 'index_dashboard_task'
+      end
+
 
     scope :view, controller: 'tasks/observation_matrices/view' do
-      get '(:id)', as: 'observation_matrix_view_task', action: :index
+      get '(:observation_matrix_id)', as: 'observation_matrix_view_task', action: :index
     end
 
     scope :observation_matrix_hub, controller: 'tasks/observation_matrices/observation_matrix_hub' do
@@ -301,9 +306,9 @@ scope :tasks do
     end
 
     scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
-      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metdata', defaults: {format: :json}
+      get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metadata', defaults: {format: :json}
       get 'observation_matrix_column_item_metadata', as: 'observation_matrix_column_item_metdata', defaults: {format: :json}
-      get '(:id)', action: :index, as: 'new_matrix_task'
+      get '(:observation_matrix_id)', action: :index, as: 'new_matrix_task'
     end
 
     scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
@@ -313,6 +318,10 @@ scope :tasks do
   end
 
   scope :otus do
+      scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
+        get :index, as: 'index_browse_asserted_distributions_task'
+      end
+
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'
     end

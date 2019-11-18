@@ -6,6 +6,7 @@ export TW_PATH=$(git rev-parse --show-toplevel)
 cd $TW_PATH
 
 sed -i -e 's/^\s*spec\s*$//' .dockerignore
+sed -i -e 's/^\s*\.travis\s*$//' .dockerignore
 echo "spec/fixtures/vcr_cassettes" >> .dockerignore
 
 cp Gemfile Gemfile.lock package.json package-lock.json .travis

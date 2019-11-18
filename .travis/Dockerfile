@@ -1,18 +1,16 @@
-FROM ubuntu:16.04 AS tw-travis-base
+FROM ubuntu:18.04 AS tw-travis-base
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
 &&  apt-get install -y curl \
 &&  curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-&&  echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list \
+&&  echo 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main' >> /etc/apt/sources.list.d/pgdg.list \
 &&  curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
 RUN apt-get update && \
-    apt-get install -y locales \
-                       libgeos-dev libproj-dev postgresql-10-postgis-2.4 postgresql-10-postgis-2.4-scripts \
-                       build-essential nodejs gnupg2 git sudo libgtk-3-0 libgtk-3-dev libdbus-glib-1-2 \
-                       gawk autoconf automake bison libffi-dev libgdbm-dev libncurses5-dev libsqlite3-dev \
-                       libtool libyaml-dev pkg-config sqlite3 zlib1g-dev libgmp-dev libreadline6-dev libssl-dev \
-                       imagemagick libmagickcore-dev libmagickwand-dev libpq-dev libproj-dev libgeos-dev libgeos++-dev \
+    apt-get install -y postgresql-10 postgresql-contrib-10 libgeos-dev libproj-dev postgresql-10-postgis-2.4 postgresql-10-postgis-2.4-scripts \
+    libpq-dev cmake imagemagick libmagickwand-dev git curl build-essential nodejs libgtk-3-0 libgtk-3-dev libdbus-glib-1-2 libxt6 \
 && apt-get clean \
 && locale-gen en_US.UTF-8 \
 && rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* \
@@ -23,6 +21,8 @@ ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
 
+
+RUN apt-get install -y sudo
 # Switch to unprivileged user
 ARG UID
 ARG GID
@@ -38,8 +38,7 @@ RUN mkdir firefox-latest \
 &&  cd firefox-latest \
 &&  curl -sL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64' | \
     tar -xjf - \
-&&  curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.7.0 \
-&&  gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB \
+&&  gpg --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB \
 &&  curl -L get.rvm.io | bash -s stable \
 &&  echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"' \
 &&  npm rebuild node-sass
@@ -57,7 +56,7 @@ ARG BUNDLER_VERSION
 SHELL ["/bin/bash", "-l", "-c"]
 RUN rvm install $RUBY_VERSION \
 &&  rvm use $RUBY_VERSION --default \
-&&  gem install bundler --no-ri --no-rdoc -v $BUNDLER_VERSION
+&&  gem install bundler
 
 # Install node packages
 COPY package.json .

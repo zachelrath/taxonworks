@@ -18,7 +18,7 @@ before_cache:
     docker save ubuntu:16.04 tw-travis-base $(docker images -q --all) |
     gzip --fast > $HOME/docker-images/tw-travis-image.tar.gz &&
     docker image ls tw-travis-base -q --no-trunc > $HOME/docker-images/id
-dist: xenial
+dist: bionic
 branches:
   only:
     - master
