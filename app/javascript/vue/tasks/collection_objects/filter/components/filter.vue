@@ -47,6 +47,12 @@
       <loan-component v-model="params.loans"/>
       <in-relationship v-model="params.relationships.biological_relationship_ids"/>
       <biocurations-component v-model="params.biocurations.biocuration_class_ids"/>
+      <data-attributes
+        title="By collection object attributes"
+        v-model="params.collection_object.data_attributes"/>
+      <data-attributes
+        title="By collecting event attributes"
+        v-model="params.collectingEvents.collecting_event_attributes.data_attributes"/>
     </div>
   </div>
 </template>
@@ -63,6 +69,7 @@ import TypesComponent from './filters/types'
 import LoanComponent from './filters/loan'
 import InRelationship from './filters/relationship/in_relationship'
 import BiocurationsComponent from './filters/biocurations'
+import DataAttributes from './filters/collectingEvent/dataAttributes'
 
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -80,7 +87,8 @@ export default {
     TypesComponent,
     LoanComponent,
     InRelationship,
-    BiocurationsComponent
+    BiocurationsComponent,
+    DataAttributes
   },
   computed: {
     getMacKey () {
@@ -96,7 +104,9 @@ export default {
         !this.params.keywords.keyword_ids.length &&
         !this.params.determination.otu_ids.length &&
         !this.params.determination.ancestor_id &&
+        !this.params.collection_object.data_attributes.length &&
         !this.params.collectingEvents.collecting_event_ids.length &&
+        !this.params.collectingEvents.collecting_event_attributes.data_attributes.length &&
         !Object.values(this.params.user).find(item => { return item != undefined }) &&
         !Object.values(this.params.loans).find(item => { return item != undefined }) &&
         !Object.values(this.params.identifier).find(item => { return item != undefined })
@@ -126,7 +136,7 @@ export default {
       this.searching = true
       this.result = []
       this.$emit('newSearch')
-      const params = Object.assign({},  this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      const params = Object.assign({},  this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.collection_object, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {
         this.coList = response.body
@@ -161,6 +171,9 @@ export default {
         biocurations: {
           biocuration_class_ids: []
         },
+        collection_object: {
+          data_attributes: []
+        },
         relationships: {
           biological_relationship_ids: []
         },
@@ -194,7 +207,10 @@ export default {
           end_date: undefined,
           partial_overlap_dates: undefined,
           collecting_event_wildcards: [],
-          fields: undefined
+          fields: undefined,
+          collecting_event_attributes: {
+            data_attributes: []
+          }
         },
         user: {
           user_id: undefined,
