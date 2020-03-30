@@ -6,7 +6,7 @@
         data-icon="reset"
         class="cursor-pointer"
         v-shortkey="[getMacKey, 'r']"
-        @shortkey="resetFilter"        
+        @shortkey="resetFilter"
         @click="resetFilter">Reset
       </span>
     </div>
@@ -14,7 +14,7 @@
       :full-screen="true"
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching" 
+      v-if="searching"
     />
 
     <spinner-component
@@ -44,6 +44,7 @@
       <keywords-component v-model="params.keywords.keyword_ids" />
       <identifier-component v-model="params.identifier"/>
       <types-component v-model="params.types"/>
+      <collection-object-type-component v-model="params.collection_object.collection_object_type"/>
       <loan-component v-model="params.loans"/>
       <in-relationship v-model="params.relationships.biological_relationship_ids"/>
       <biocurations-component v-model="params.biocurations.biocuration_class_ids"/>
@@ -70,6 +71,7 @@ import LoanComponent from './filters/loan'
 import InRelationship from './filters/relationship/in_relationship'
 import BiocurationsComponent from './filters/biocurations'
 import DataAttributes from './filters/collectingEvent/dataAttributes'
+import CollectionObjectTypeComponent from './filters/collectionObjectType'
 
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -88,7 +90,8 @@ export default {
     LoanComponent,
     InRelationship,
     BiocurationsComponent,
-    DataAttributes
+    DataAttributes,
+    CollectionObjectTypeComponent
   },
   computed: {
     getMacKey () {
@@ -105,6 +108,7 @@ export default {
         !this.params.determination.otu_ids.length &&
         !this.params.determination.ancestor_id &&
         !this.params.collection_object.data_attributes.length &&
+        !this.params.collection_object.collection_object_type &&
         !this.params.collectingEvents.collecting_event_ids.length &&
         !this.params.collectingEvents.collecting_event_attributes.data_attributes.length &&
         !Object.values(this.params.user).find(item => { return item != undefined }) &&
@@ -172,7 +176,8 @@ export default {
           biocuration_class_ids: []
         },
         collection_object: {
-          data_attributes: []
+          data_attributes: [],
+          collection_object_type: undefined
         },
         relationships: {
           biological_relationship_ids: []
