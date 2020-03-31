@@ -515,3 +515,34 @@ export_basic_nomenclature_task:
     - nomenclature
   status: prototype
   description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
+match_nomenclature_task:
+  hub: true
+  name: 'Match names'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'A quick and dirty batch based check to see if names are in the system.'
+manage_controlled_vocabulary_terms_task:
+  hub: true
+  name: 'Manage controlled vocabulary terms'
+  related:
+  categories:
+  status: stable 
+  description: 'View and create custom fields, tags, etc. used throughout this project.'
+match_collection_objects_task:
+  hub: true
+  name: 'Collection object match'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Use a quick list of catalog numbers or ids to find collection objects.'
+work_report_task:
+  hub: true
+  name: 'Collection object work report'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'
