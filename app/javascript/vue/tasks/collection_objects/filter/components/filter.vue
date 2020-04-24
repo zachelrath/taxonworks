@@ -54,6 +54,8 @@
       <data-attributes
         title="By collecting event attributes"
         v-model="params.collectingEvents.collecting_event_attributes.data_attributes"/>
+      <buffered-component v-model="params.buffered"/>
+      <curator-metadata v-model="params.curator.curator_metadata"/>
     </div>
   </div>
 </template>
@@ -72,6 +74,8 @@ import InRelationship from './filters/relationship/in_relationship'
 import BiocurationsComponent from './filters/biocurations'
 import DataAttributes from './filters/collectingEvent/dataAttributes'
 import CollectionObjectTypeComponent from './filters/collectionObjectType'
+import BufferedComponent from './filters/buffered'
+import CuratorMetadata from './filters/curatorMetadata'
 
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -91,13 +95,15 @@ export default {
     InRelationship,
     BiocurationsComponent,
     DataAttributes,
-    CollectionObjectTypeComponent
+    CollectionObjectTypeComponent,
+    BufferedComponent,
+    CuratorMetadata
   },
   computed: {
     getMacKey () {
       return GetMacKey()
     },
-    emptyParams() {
+    emptyParams () {
       if (!this.params) return 
       return !this.params.biocurations.biocuration_class_ids.length && 
         !this.params.geographic.geographic_area_ids.length &&
@@ -113,6 +119,8 @@ export default {
         !this.params.collectingEvents.collecting_event_attributes.data_attributes.length &&
         !Object.values(this.params.user).find(item => { return item != undefined }) &&
         !Object.values(this.params.loans).find(item => { return item != undefined }) &&
+        !Object.values(this.params.curator).find(item => { return item != undefined }) &&
+        !Object.values(this.params.buffered).find(item => { return item != undefined }) &&
         !Object.values(this.params.identifier).find(item => { return item != undefined })
     }
   },
@@ -140,7 +148,7 @@ export default {
       this.searching = true
       this.result = []
       this.$emit('newSearch')
-      const params = Object.assign({},  this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.collection_object, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      const params = Object.assign({}, this.params.settings, this.params.curator, this.params.buffered, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.collection_object, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {
         this.coList = response.body
@@ -228,6 +236,14 @@ export default {
           radius: undefined,
           spatial_geographic_areas: undefined,
           geographic_area_ids: []
+        },
+        buffered: {
+          buffered_collecting_event: undefined,
+          buffered_determinations: undefined,
+          buffered_other_labels: undefined
+        },
+        curator: {
+          curator_metadata: undefined
         }
       }
     },
