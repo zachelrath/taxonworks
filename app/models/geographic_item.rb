@@ -1055,7 +1055,16 @@ class GeographicItem < ApplicationRecord
   # @return [Boolean]
   def contains?(target_geo_object)
     return nil if target_geo_object.nil?
-    self.geo_object.contains?(target_geo_object)
+    ### DEBUG
+    begin
+      self.geo_object.contains?(target_geo_object)
+    rescue
+      Rails.logger.error "models/geographic_item.rb:1056"
+      Rails.logger.error "self.geo_object.inspect = #{self.geo_object}"
+      Rails.logger.error "target_geo_object.inspect = #{target_geo_object.inspect}"
+      Rails.logger.error "self.inspect = #{self.inspect}"
+      raise
+    end
   end
 
   # @param [geo_object]

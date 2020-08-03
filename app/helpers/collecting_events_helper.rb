@@ -67,7 +67,16 @@ module CollectingEventsHelper
   def collecting_event_coordinates_tag(collecting_event)
     return nil if collecting_event.nil? || collecting_event.map_center_method.nil?
     c = collecting_event.map_center
-    content_tag(:span, [c.x.round(4), c.y.round(4)].join('&nbsp;&#8212;&nbsp;').html_safe)
+    ### DEBUG
+    begin
+      content_tag(:span, [c.x.round(4), c.y.round(4)].join('&nbsp;&#8212;&nbsp;').html_safe)
+    rescue
+      Rails.logger.error "helpers/collecting_events_helper.rb:67"
+      Rails.logger.error "c.inspect = #{c.inspect}"
+      Rails.logger.error "collecting_event.inspect = #{collecting_event.inspect}"
+      Rails.logger.error "collecting_event.map_center.inspect = #{collecting_event.map_center.inspect}"
+      raise
+    end
   end
 
   def collecting_event_dates_tag(collecting_event)
