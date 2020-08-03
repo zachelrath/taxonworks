@@ -89,8 +89,8 @@ jobs:
           [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \
           [ "$TRAVIS_EVENT_TYPE" == "push" ] && \
           docker login -u "$DOCKER_USER" -p "$DOCKER_PASS" && \
-          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:production-debug-$DOCKER_TAG && \
-          docker push sfgrp/taxonworks:production-debug-$DOCKER_TAG
+          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:production-debug-$REVISION && \
+          docker push sfgrp/taxonworks:production-debug-$REVISION
 notifications:
   email:
     recipients:
