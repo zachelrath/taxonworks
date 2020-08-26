@@ -367,7 +367,9 @@ module Queries
       # @return [String]
       def authorship
         parser = ::Biodiversity::Parser
+        Rails.logger.info "::Biodiversity::Parser [query_string=\"#{query_string}\"]"
         a = parser.parse(query_string)
+        Rails.logger.info "::Biodiversity::Parser [RETURNED]"
         b = a
         return nil if b.nil? or b[:details].nil?
 
