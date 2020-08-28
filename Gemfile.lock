@@ -561,6 +561,7 @@ DEPENDENCIES
   better_errors (~> 2.4)
   bibtex-ruby (~> 5.1.1)
   binding_of_caller
+  biodiversity (~> 4.0, >= 4.0.3)
   brakeman (~> 4.6, >= 4.6.1)
   bundler (~> 2.0)
   byebug (~> 11.1)
