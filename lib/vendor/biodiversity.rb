@@ -81,8 +81,14 @@ module TaxonWorks
           n, @citation = preparse
 
           begin
+            Rails.logger.info "::Biodiversity::Parser [preparse=#{n.inspect}]"
+            Rails.logger.flush
             @parse_result ||= ::Biodiversity::Parser.parse(n)
+            Rails.logger.info "::Biodiversity::Parser [RETURNED]"
+            Rails.logger.flush
           rescue NoMethodError => e
+            Rails.logger.info "::Biodiversity::Parser [RETURNED (rescue)]"
+            Rails.logger.flush
             case e.message
             when /canonical/
               @parseable = false 
