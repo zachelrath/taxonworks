@@ -16,5 +16,6 @@
   "globals": {
     "TW": "true",
     "jquery": "true"
-  }
+  },
+  "parser": "babel-eslint"
 }
