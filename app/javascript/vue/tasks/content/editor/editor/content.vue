@@ -31,13 +31,7 @@
           v-if="disabled"
           class="CodeMirror cm-s-paper CodeMirror-wrap"/>
         <template v-else>
-          <markdown-editor
-            v-if="loadMarkwdown"
-            class="edit-content"
-            v-model="record.content.text"
-            :configs="config"
-            @input="handleInput"
-            ref="contentText"
+          <asciidoctor
             @dblclick="addCitation"/>
         </template>
       </div>
@@ -109,6 +103,7 @@
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
   import AjaxCall from 'helpers/ajaxCall'
+  import asciidoctor from 'components/asciidoctor/editor'
 
   export default {
     components: {
@@ -118,7 +113,8 @@
       SelectTopicOtu,
       RadialAnnotator,
       RadialObject,
-      OtuButton
+      OtuButton,
+      asciidoctor
     },
     computed: {
       topic() {
