@@ -9,6 +9,51 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.12.17] - 2020-02-02
+
+### Added
+- Successfull source destroy message 
+- Pending - Definition field to BiologicalRelationship model and views [#1672]
+- New button to (attempt to) convert verbatim sources to Bibtex via Crossref
+- Model methods and attribute to change Source Verbatim to Bibtex [#1673]
+- DOMPurify package to sanitize html
+- List all Keyword and Topics in smart selector on filter source [#1675]
+- Added data links tool in markdown editor (Ctrl/Alt-Shift-L) [#1674]
+- Definition field on composer biological relationship task [#1672]
+
+### Changed
+- Unified can_destroy/edit methods
+- Improved Source autocomplete with metadata/markup [#1681]
+- Changed CoLDP download to use Catalog::Nomenclature as name source
+- Replace SimpleMDE for EasyMDE
+- Sort alphabetically bibliography style list on filter source
+- Removed limit of download bibtex on filter source [#1683]
+- Disable/enable destroy button from metadata on radial navigator [#1696]
+
+#### Fixed
+- Non admins not able to destroy shared data [#1098]
+- Pending confirmation: Include original combinations in CoLDP [#1204] 
+- Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
+- Docker: Fixed path typo on clean up command
+- Tag button on filter source [#1692]
+- Overflow in taxon names list in new taxon name [#1688]
+- Confidence button overlapped in new combination [#1687]
+
+[#1098]: https://github.com/SpeciesFileGroup/taxonworks/issues/1098 
+[#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
+[#1673]: https://github.com/SpeciesFileGroup/taxonworks/issues/1673
+[#1674]: https://github.com/SpeciesFileGroup/taxonworks/issues/1674
+[#1681]: https://github.com/SpeciesFileGroup/taxonworks/issues/1681
+[#1203]: https://github.com/SpeciesFileGroup/taxonworks/issues/1203
+[#1204]: https://github.com/SpeciesFileGroup/taxonworks/issues/1204
+[#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
+[#1675]: https://github.com/SpeciesFileGroup/taxonworks/issues/1675
+[#1683]: https://github.com/SpeciesFileGroup/taxonworks/issues/1683
+[#1687]: https://github.com/SpeciesFileGroup/taxonworks/issues/1687
+[#1688]: https://github.com/SpeciesFileGroup/taxonworks/issues/1688
+[#1692]: https://github.com/SpeciesFileGroup/taxonworks/issues/1692
+[#1696]: https://github.com/SpeciesFileGroup/taxonworks/issues/1696
+
 ## [0.12.16] - 2020-08-24
 
 ### Added
@@ -373,7 +418,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...development
+[0.12.17]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...v0.12.17
 [0.12.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...v0.12.16
 [0.12.15]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...v0.12.15
 [0.12.14]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.13...v0.12.14
