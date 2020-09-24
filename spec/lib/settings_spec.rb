@@ -23,7 +23,7 @@ describe Settings do
   }
 
   after(:all) do
-    current_settings_hash =  Settings.get_config_hash
+    current_settings_hash = Settings.get_config_hash
     config = {
       default_data_directory: current_settings_hash[:default_data_directory],
       backup_directory: current_settings_hash[:backup_directory],

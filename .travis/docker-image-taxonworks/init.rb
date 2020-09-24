@@ -1,4 +1,4 @@
-user = User.create!(
+admin = User.create!(
   name: 'John Doe',
   email: 'admin@example.com',
   password: 'taxonworks',
@@ -7,15 +7,24 @@ user = User.create!(
   self_created: true
 )
 
+user = User.create!(
+  name: 'John Doe',
+  email: 'user@example.com',
+  password: 'taxonworks',
+  password_confirmation: 'taxonworks',
+  is_administrator: false,
+  by: admin
+)
+
 project = Project.create(
   name: "test_project",
-  by: user
+  by: admin
 )
 
 ProjectMember.create!(
   project: project,
-  user: user,
-  by: user
+  user: admin,
+  by: admin
 )
 
 taxon_name = Protonym.create!(
@@ -23,14 +32,14 @@ taxon_name = Protonym.create!(
   rank_class: Ranks.lookup(:iczn, 'Family'),
   parent: project.root_taxon_name,
   project: project,
-  by: user
+  by: admin
 )
 
 otu = Otu.create!(
   name: 'test_otu',
   taxon_name: taxon_name,
   project: project,
-  by: user
+  by: admin
 )
 
 # Verify we don't run all queues

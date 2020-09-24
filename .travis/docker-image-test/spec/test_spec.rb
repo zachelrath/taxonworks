@@ -31,14 +31,14 @@ Capybara.configure do |config|
   config.app_host = 'http://taxonworks'
 end
 
-    proxy.new_har
+proxy.new_har
 
 describe "Docker image test", js: true do
+  before(:all) { @user = 'admin' }
   before(:each) do
-
     visit '/'
 
-    find('#session_email').set('admin@example.com')
+    find('#session_email').set("#{@user}@example.com")
     find('#session_password').set('taxonworks')
 
     click_button 'sign_in'
@@ -95,7 +95,22 @@ describe "Docker image test", js: true do
     end
   end
 
+  context 'Unprivileged user when project creation enabled for everybody' do
+    before(:all) { @user = 'user' }
 
+    it 'logs in successfully' do
+      click_on 'Account'
+      expect(page).to have_content('user@example.com')
+    end
+
+    it 'can create a project and have access to it' do
+      click_link 'New Project'
+      fill_in 'project_name', with: 'Test Project'
+      click_button 'Create Project'
+      click_link 'Test Project'
+      expect(page).to have_link('tasks')
+    end
+  end
 
   # TODO: Make this test inside taxonworks container (without installing anything extra).
   #       This is currently self-tested in Dockerfile

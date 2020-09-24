@@ -30,6 +30,7 @@ module Settings
   @@sandbox_commit_sha = nil
   @@sandbox_short_commit_sha = nil
   @@sandbox_commit_date = nil
+  @@users_can_create_projects = false
 
   @@selenium_settings = {}
 
@@ -55,7 +56,7 @@ module Settings
 
   # @return [Hash]
   def self.get_config_hash
-    @@config_hash
+    @@config_hash.deep_dup
   end
 
   # @param [Hash] config
@@ -110,6 +111,19 @@ module Settings
   # @return [Date]
   def self.sandbox_commit_date
     @@sandbox_commit_date
+  end
+
+  # @return [Boolean]
+  def self.users_can_create_projects?
+    @@users_can_create_projects
+  end
+
+  # @param [Boolean] value
+  # @return [Boolean] old value
+  def self.set_users_can_create_projects(value)
+    old = @@users_can_create_projects
+    @@users_can_create_projects = value
+    old
   end
 
   # @return [Hash]
@@ -178,13 +192,14 @@ module Settings
   # @param [Hash] settings
   def self.load_interface(settings)
     if settings
-      invalid = settings.keys - [:sandbox_mode]
+      invalid = settings.keys - [:sandbox_mode, :users_can_create_projects]
       raise Error, "#{invalid} are not valid settings for interface" unless invalid.empty?
       if settings[:sandbox_mode] == true
         @@sandbox_mode = true
         @@sandbox_commit_sha = TaxonworksNet.commit_sha
         @@sandbox_short_commit_sha = TaxonworksNet.commit_sha.try(:slice!, 0, 12)
         @@sandbox_commit_date = TaxonworksNet.commit_date
+        @@users_can_create_projects = (settings[:users_can_create_projects] == true)
       end
     end
   end

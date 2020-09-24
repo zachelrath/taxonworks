@@ -90,7 +90,7 @@ describe 'Project Handling', type: :feature do
   end
 
   describe 'GET /projects/1' do
-    context 'logged in as a project administrator' do 
+    context 'logged in as a project administrator' do
       before { 
         sign_in_project_administrator_and_select_project
         visit project_path(@project.id) 
@@ -163,20 +163,48 @@ describe 'Project Handling', type: :feature do
     end
 
     describe '  # POST /projects' do
-      context 'logged in users is not a superuser' do 
+      context 'logged in user is not a superuser' do
         before { 
           sign_in_user
-          visit projects_path 
         }
-        # it 'should redirect to hub and present a notice'
+
+        context 'when only superusers are allowed to create a project' do
+          it 'should redirect to hub and present a notice' do
+            visit projects_path
+            expect(page).to have_content('Please sign in as a project administrator or administrator.')
+            expect(page).to have_content('Dashboard')
+          end
+        end
+
+        context 'when all users are allowed to create a project' do
+          before { @old_settings = Settings.set_users_can_create_projects(true) }
+          after { Settings.set_users_can_create_projects(@old_settings) }
+
+          it 'should create the project, auto-assign as project member and redirect to dashboard with a notice' do
+            visit '/'
+            click_link 'New Project'
+            fill_in 'project_name', with: 'Test Project'
+            click_button 'Create Project'
+            expect(page).to have_content('Project was successfully created.')
+            click_link 'Test Project'
+            expect(page).to have_link('tasks')
+          end
+        end
       end
 
       context 'logged in user is a superuser' do
         before {
           sign_in_administrator
-          visit projects_path 
+          visit projects_path
         }
-        # it 'should create the project and redirect to projects/index with a notice'
+
+        it 'should create the project and redirect to projects/index with a notice' do
+          click_link 'New Project'
+          fill_in 'project_name', with: 'Test Project'
+          click_button 'Create Project'
+          expect(page).to have_link('Add project member')
+          expect(page).to have_content('Project was successfully created.')
+        end
       end
     end
   end

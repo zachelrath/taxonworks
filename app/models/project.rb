@@ -111,6 +111,8 @@ class Project < ApplicationRecord
   validates_presence_of :name
   validates_uniqueness_of :name
 
+  accepts_nested_attributes_for :project_members
+
   def project_administrators
     users.joins(:project_members).where(project_members: {is_project_administrator: true})
   end

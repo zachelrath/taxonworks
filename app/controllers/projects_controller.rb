@@ -1,6 +1,7 @@
 class ProjectsController < ApplicationController
   before_action :require_sign_in
-  before_action :require_administrator_sign_in, only: [:new, :create, :destroy]
+  before_action :require_administrator_sign_in, only: [:destroy]
+  before_action :require_administrator_sign_in, only: [:new, :create], unless: -> { Settings.users_can_create_projects? }
   before_action :require_superuser_sign_in, only: [:show, :edit, :update]
   before_action :can_administer_projects?, only: [:index]
 
@@ -29,11 +30,18 @@ class ProjectsController < ApplicationController
   # POST /projects
   # POST /projects.json
   def create
-    @project = Project.new(project_params)
+    params = project_params
+
+    params.merge!({
+      project_members: [ProjectMember.new(user: sessions_current_user, is_project_administrator: false)]
+    }) if Settings.users_can_create_projects? && !sessions_current_user.is_administrator?
+
+    @project = Project.new(params)
 
     respond_to do |format|
       if @project.save
-        format.html { redirect_to @project, notice: 'Project was successfully created.' }
+        location = sessions_current_user.is_superuser? ? @project : '/'
+        format.html { redirect_to location, notice: 'Project was successfully created.' }
         format.json { render action: 'show', status: :created, location: @project }
       else
         format.html { render action: 'new' }

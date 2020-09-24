@@ -14,3 +14,4 @@ production:
   mail_domain: <%= ENV['TW_MAIL_DOMAIN'] %>
   interface:
     sandbox_mode: <%= ENV['TW_SANDBOX_MODE'] || 'false' %>
+    users_can_create_projects: <%= ENV['TW_USERS_CAN_CREATE_PROJECTS'] || 'false' %>

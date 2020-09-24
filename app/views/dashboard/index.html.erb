@@ -11,6 +11,11 @@
           <ul class="no_bullets">
             <%= projects_list(@projects) -%>
           </ul>
+          <% if Settings.users_can_create_projects? %>
+          <div style="text-align: center; border-top: 1px solid #CCC; margin-top: 2ex; padding-top: 1ex">
+            <a href="/projects/new" >New Project</a>
+          </div>
+          <% end %>
         </div>
       </div>
     </div>
