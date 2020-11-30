@@ -26,6 +26,11 @@ scope :tasks do
       get 'download', as: 'download_coldp_task'
     end
 
+    scope :docx, controller: 'tasks/exports/docx' do
+      get '/', action: :index, as: 'export_docx_task'
+      get 'download', as: 'download_docx_task'
+    end
+
     scope :nomenclature, controller: 'tasks/exports/nomenclature' do
       get 'basic', action: :basic, as: 'export_basic_nomenclature_task'
       get 'download_basic', as: 'download_basic_nomenclature_task'
